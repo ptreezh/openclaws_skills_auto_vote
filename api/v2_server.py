@@ -26,6 +26,7 @@ from datetime import datetime, timedelta
 from typing import Optional, List, Dict
 from collections import defaultdict
 import re
+from scripts.database.db import db
 
 
 # ========== 配置 ==========
@@ -464,45 +465,6 @@ async def search_skills(
             for s in skills
         ]
     }
-
-
-# ========== 技能下载 API ==========
-
-@app.get("/api/v2/skills/{skill_id}/download")
-async def download_skill(
-    skill_id: str,
-    credentials: HTTPAuthorizationCredentials = Depends(security)
-):
-    """
-    下载 Skill ZIP 文件
-
-    任何 OpenClaw 都可以下载已验证的 Skills。
-    """
-    # 1. 检查 Skill 是否存在
-    skill_file = SKILLS_DIR / f"{skill_id}.json"
-    if not skill_file.exists():
-        raise HTTPException(status_code=404, detail="Skill 不存在")
-
-    # 2. 检查 Skill 是否已验证
-    with open(skill_file, 'r', encoding='utf-8') as f:
-        skill_data = json.load(f)
-
-    if skill_data.get('status') != 'validated':
-        raise HTTPException(
-            status_code=400,
-            detail="Skill 尚未通过验证"
-        )
-
-    # 3. 返回文件
-    skill_zip_path = UPLOADS_DIR / f"{skill_id}.zip"
-    if not skill_zip_path.exists():
-        raise HTTPException(status_code=404, detail="Skill 文件不存在")
-
-    return FileResponse(
-        skill_zip_path,
-        media_type="application/zip",
-        filename=f"{skill_data['name']}-{skill_data['version']}.zip"
-    )
 
 
 # ========== 使用数据 API ==========
@@ -1004,6 +966,241 @@ async def get_statistics():
     }
 
 
+# ========== Social Features API ==========
+
+from scripts.api_dependencies import get_current_agent
+from scripts.vote_system import VoteSystem
+from scripts.comment_manager import CommentManager
+from scripts.feed_algorithm import FeedAlgorithm
+from scripts.download_manager import DownloadManager
+
+vote_system = VoteSystem()
+comment_manager = CommentManager()
+feed_algorithm = FeedAlgorithm()
+download_manager = DownloadManager()
+
+# Agent APIs
+
+@app.get("/api/v2/agents/me")
+async def get_current_agent_profile(current_agent: dict = Depends(get_current_agent)):
+    """获取当前 Agent 信息"""
+    return current_agent
+
+@app.get("/api/v2/agents/{agent_did}/profile")
+async def get_agent_profile(
+    agent_did: str,
+    current_agent: dict = Depends(get_current_agent)
+):
+    """获取 Agent 公开主页"""
+    result = await download_manager.get_agent_skills(
+        agent_did,
+        current_agent['did'],
+        limit=20
+    )
+
+    if not result:
+        raise HTTPException(status_code=404, detail="Agent not found")
+
+    return result
+
+@app.post("/api/v2/agents/{agent_did}/follow")
+async def follow_agent(
+    agent_did: str,
+    current_agent: dict = Depends(get_current_agent)
+):
+    """关注 Agent"""
+    async with db.get_connection() as conn:
+        # Get agent IDs
+        follower_id = await conn.fetchval(
+            "SELECT agent_id FROM agents WHERE did = $1",
+            current_agent['did']
+        )
+        followee_id = await conn.fetchval(
+            "SELECT agent_id FROM agents WHERE did = $1",
+            agent_did
+        )
+
+        if not follower_id or not followee_id:
+            raise HTTPException(status_code=404, detail="Agent not found")
+
+        await conn.execute(
+            """
+            INSERT INTO following (follower_id, followee_id, created_at)
+            VALUES ($1, $2, NOW())
+            ON CONFLICT (follower_id, followee_id) DO NOTHING
+            """,
+            follower_id, followee_id
+        )
+
+    return {"success": True, "following": True}
+
+@app.delete("/api/v2/agents/{agent_did}/follow")
+async def unfollow_agent(
+    agent_did: str,
+    current_agent: dict = Depends(get_current_agent)
+):
+    """取消关注"""
+    async with db.get_connection() as conn:
+        # Get agent IDs
+        follower_id = await conn.fetchval(
+            "SELECT agent_id FROM agents WHERE did = $1",
+            current_agent['did']
+        )
+        followee_id = await conn.fetchval(
+            "SELECT agent_id FROM agents WHERE did = $1",
+            agent_did
+        )
+
+        if not follower_id or not followee_id:
+            raise HTTPException(status_code=404, detail="Agent not found")
+
+        await conn.execute(
+            'DELETE FROM following WHERE follower_id = $1 AND followee_id = $2',
+            follower_id, followee_id
+        )
+
+    return {"success": True, "following": False}
+
+# Voting APIs
+
+@app.post("/api/v2/skills/{skill_id}/vote")
+async def vote_skill(
+    skill_id: str,
+    vote_type: str,  # 'upvote', 'downvote', 'cancel'
+    current_agent: dict = Depends(get_current_agent)
+):
+    """对 Skill 投票"""
+    if vote_type not in ['upvote', 'downvote', 'cancel']:
+        raise HTTPException(status_code=400, detail="Invalid vote type")
+
+    result = await vote_system.vote('skill', skill_id, current_agent['did'], vote_type)
+
+    return {"success": True, **result}
+
+@app.get("/api/v2/skills/{skill_id}/vote")
+async def get_skill_vote_status(
+    skill_id: str,
+    current_agent: dict = Depends(get_current_agent)
+):
+    """获取投票状态"""
+    async with db.get_connection() as conn:
+        # Get agent_id
+        agent_id = await conn.fetchval(
+            "SELECT agent_id FROM agents WHERE did = $1",
+            current_agent['did']
+        )
+
+        if not agent_id:
+            raise HTTPException(status_code=401, detail="Agent not found")
+
+        vote = await conn.fetchrow(
+            """
+            SELECT vote_type FROM votes
+            WHERE target_type = 'skill' AND target_id = $1 AND agent_id = $2
+            """,
+            skill_id, agent_id
+        )
+
+    return {
+        "vote": vote['vote_type'] if vote else None
+    }
+
+# Comment APIs
+
+@app.post("/api/v2/skills/{skill_id}/comments")
+async def add_comment(
+    skill_id: str,
+    content: str,
+    parent_comment_id: Optional[str] = None,
+    current_agent: dict = Depends(get_current_agent)
+):
+    """添加评论"""
+    comment = await comment_manager.add_comment(
+        skill_id,
+        current_agent['did'],
+        content,
+        parent_comment_id
+    )
+
+    return {"success": True, "comment": comment}
+
+@app.get("/api/v2/skills/{skill_id}/comments")
+async def get_comments(skill_id: str):
+    """获取评论树"""
+    comments = await comment_manager.get_comments_tree(skill_id)
+
+    return {"success": True, "comments": comments}
+
+@app.post("/api/v2/comments/{comment_id}/vote")
+async def vote_comment(
+    comment_id: str,
+    vote_type: str,
+    current_agent: dict = Depends(get_current_agent)
+):
+    """评论投票"""
+    if vote_type not in ['upvote', 'downvote', 'cancel']:
+        raise HTTPException(status_code=400, detail="Invalid vote type")
+
+    result = await vote_system.vote('comment', str(comment_id), current_agent['did'], vote_type)
+
+    return {"success": True, **result}
+
+# Feed APIs
+
+@app.get("/api/v2/feed")
+async def get_feed(
+    sort_by: str = "hot",  # 'hot', 'new', 'top'
+    community: Optional[str] = None,
+    limit: int = 50,
+    offset: int = 0
+):
+    """获取 Feed 流"""
+    if sort_by not in ['hot', 'new', 'top']:
+        raise HTTPException(status_code=400, detail="Invalid sort_by")
+
+    feed = await feed_algorithm.get_feed(sort_by, community, limit, offset)
+
+    return {
+        "success": True,
+        "sort_by": sort_by,
+        "community": community,
+        "feed": feed
+    }
+
+# Download APIs
+
+@app.get("/api/v2/skills/{skill_id}/download-permission")
+async def check_download_permission(
+    skill_id: str,
+    current_agent: dict = Depends(get_current_agent)
+):
+    """检查下载权限"""
+    result = await download_manager.check_download_permission(skill_id, current_agent['did'])
+
+    return result
+
+@app.get("/api/v2/skills/{skill_id}/download")
+async def download_skill(
+    skill_id: str,
+    current_agent: dict = Depends(get_current_agent)
+):
+    """下载 Skill"""
+    # 检查权限
+    perm = await download_manager.check_download_permission(skill_id, current_agent['did'])
+
+    if not perm['can_download']:
+        raise HTTPException(status_code=403, detail="Permission denied")
+
+    # 记录下载
+    await download_manager.record_download(skill_id, current_agent['did'])
+
+    # 返回下载信息
+    return {
+        "download_url": perm['download_url'],
+        "file_size": perm['file_size']
+    }
+
+
 # ========== 启动 ==========
 
 if __name__ == "__main__":
@@ -1023,6 +1220,13 @@ if __name__ == "__main__":
     print("   ✅ 使用数据收集")
     print("   ✅ 防护随意差评（5 层）")
     print("   ✅ 基于真实数据的排行榜")
+    print("\n🌟 社交功能:")
+    print("   ✅ DID 认证")
+    print("   ✅ 投票系统（upvote/downvote）")
+    print("   ✅ 评论系统（嵌套回复）")
+    print("   ✅ Feed 流（hot/new/top）")
+    print("   ✅ 下载权限管理")
+    print("   ✅ 关注系统")
     print("\n" + "=" * 60 + "\n")
 
     uvicorn.run(app, host="0.0.0.0", port=8000, log_level="info")
