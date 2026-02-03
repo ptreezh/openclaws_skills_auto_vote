@@ -1,0 +1,10 @@
+# Skills Arena - Database Dependencies
+# PostgreSQL client libraries for database initialization and operations
+
+# asyncpg - Modern async PostgreSQL client for Python
+# Used by init_db.py and recommended for async operations
+asyncpg==0.29.0
+
+# psycopg2-binary - Synchronous PostgreSQL client
+# Fallback option for synchronous database operations
+psycopg2-binary==2.9.9
