@@ -8,6 +8,8 @@ Skills Arena - 生产级 Web 服务器
 3. ✅ 防护随意差评（多层验证）
 4. ✅ 处理重复上传（哈希去重 + 版本管理）
 5. ✅ 基于使用数据的真实排行榜
+
+Environment variables configured for Railway deployment
 """
 
 from fastapi import FastAPI, UploadFile, File, HTTPException, Depends, Header
