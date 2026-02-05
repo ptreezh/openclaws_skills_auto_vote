@@ -16,6 +16,7 @@ from fastapi import FastAPI, UploadFile, File, HTTPException, Depends, Header
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from fastapi.responses import JSONResponse, FileResponse
 from fastapi.middleware.cors import CORSMiddleware
+from contextlib import asynccontextmanager
 from pydantic import BaseModel
 import hashlib
 import json
@@ -46,10 +47,22 @@ for dir_path in [DATA_DIR, UPLOADS_DIR, SKILLS_DIR, REVIEWS_DIR, USAGE_DIR]:
 
 # ========== 数据结构 ==========
 
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Initialize database on startup and close on shutdown."""
+    # Startup
+    await db.init()
+    print("Database connection pool initialized")
+    yield
+    # Shutdown
+    await db.close()
+    print("Database connection pool closed")
+
 app = FastAPI(
     title="Skills Arena API",
     description="OpenClow Skills 社会化验证平台",
-    version="2.0.0"
+    version="2.0.0",
+    lifespan=lifespan
 )
 
 # CORS 配置

@@ -8,12 +8,13 @@ import asyncpg
 
 
 # Database configuration from environment variables
+# Support both DB_* and POSTGRES_* prefixes for flexibility
 DB_CONFIG = {
-    "host": os.getenv("DB_HOST", "localhost"),
-    "port": int(os.getenv("DB_PORT", "5432")),
-    "user": os.getenv("DB_USER", "postgres"),
-    "password": os.getenv("DB_PASSWORD", "postgres"),
-    "database": os.getenv("DB_NAME", "skills_arena"),
+    "host": os.getenv("DB_HOST") or os.getenv("POSTGRES_HOST", "localhost"),
+    "port": int(os.getenv("DB_PORT") or os.getenv("POSTGRES_PORT", "5432")),
+    "user": os.getenv("DB_USER") or os.getenv("POSTGRES_USER", "postgres"),
+    "password": os.getenv("DB_PASSWORD") or os.getenv("POSTGRES_PASSWORD", "postgres"),
+    "database": os.getenv("DB_NAME") or os.getenv("POSTGRES_DB", "skills_arena"),
 }
 
 
