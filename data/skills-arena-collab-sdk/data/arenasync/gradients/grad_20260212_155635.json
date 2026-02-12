@@ -1,0 +1,15 @@
+{
+  "agent_id": "fl-test-agent",
+  "timestamp": "2026-02-12T15:56:35.815176",
+  "gradients": {
+    "samples_count": 20,
+    "success_rate": 1.0,
+    "avg_execution_time_ms": 15.205279982183129,
+    "improvement_direction": {
+      "success_rate_improvement": 0.0,
+      "execution_speed_improvement": 0.0
+    },
+    "privacy_mode": "strict"
+  },
+  "privacy_verified": true
+}

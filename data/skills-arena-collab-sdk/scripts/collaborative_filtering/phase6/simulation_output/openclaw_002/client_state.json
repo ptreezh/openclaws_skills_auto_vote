@@ -1,0 +1,106 @@
+{
+  "client_id": "openclaw_002",
+  "device_type": "desktop",
+  "consent_state": {
+    "data_collection": false,
+    "model_sharing": false,
+    "analytics": false,
+    "personalization": true,
+    "federated_learning": false,
+    "granted_at": null,
+    "revoked_at": null
+  },
+  "user_profile": {
+    "preferred_categories": [
+      "analysis",
+      "communication",
+      "research",
+      "writing",
+      "coding"
+    ],
+    "skill_ratings": {
+      "skill_chart_maker": {
+        "timestamp": "2026-02-12T11:58:30.743530",
+        "skill_id": "skill_chart_maker",
+        "rating": 3,
+        "feedback": "Could be better"
+      },
+      "skill_source_finder": {
+        "timestamp": "2026-02-12T11:58:30.745527",
+        "skill_id": "skill_source_finder",
+        "rating": 4,
+        "feedback": "Good tool!"
+      }
+    },
+    "usage_patterns": {
+      "skill_chart_maker": {
+        "last_used": "2026-02-12T11:58:30.742524",
+        "total_duration": 8.304448177209938,
+        "usage_count": 1
+      },
+      "skill_email_draft": {
+        "last_used": "2026-02-12T11:58:30.743530",
+        "total_duration": 10.170987657835278,
+        "usage_count": 1
+      },
+      "skill_paper_search": {
+        "last_used": "2026-02-12T11:58:30.743530",
+        "total_duration": 1.7986252467929063,
+        "usage_count": 1
+      },
+      "skill_grammar_check": {
+        "last_used": "2026-02-12T11:58:30.743530",
+        "total_duration": 7.547229651484432,
+        "usage_count": 1
+      },
+      "skill_citation_gen": {
+        "last_used": "2026-02-12T11:58:30.744529",
+        "total_duration": 17.14090608143582,
+        "usage_count": 1
+      },
+      "skill_presentation": {
+        "last_used": "2026-02-12T11:58:30.747543",
+        "total_duration": 20.97754782959293,
+        "usage_count": 2
+      },
+      "skill_vscode": {
+        "last_used": "2026-02-12T11:58:30.744529",
+        "total_duration": 16.88293819193403,
+        "usage_count": 1
+      },
+      "skill_fact_check": {
+        "last_used": "2026-02-12T11:58:30.747543",
+        "total_duration": 28.01492987302219,
+        "usage_count": 2
+      },
+      "skill_source_finder": {
+        "last_used": "2026-02-12T11:58:30.745527",
+        "total_duration": 27.710237902111768,
+        "usage_count": 1
+      },
+      "skill_summary": {
+        "last_used": "2026-02-12T11:58:30.746538",
+        "total_duration": 45.89757000593062,
+        "usage_count": 2
+      },
+      "skill_summarizer": {
+        "last_used": "2026-02-12T11:58:30.746538",
+        "total_duration": 13.64211087534195,
+        "usage_count": 1
+      },
+      "skill_report_gen": {
+        "last_used": "2026-02-12T11:58:30.747543",
+        "total_duration": 20.883201114889953,
+        "usage_count": 1
+      }
+    },
+    "context_preferences": {}
+  },
+  "skill_usage_count": 15,
+  "model_architecture": {
+    "embedding_dim": 768,
+    "hidden_size": 256,
+    "num_layers": 3,
+    "vocab_size": 1000
+  }
+}

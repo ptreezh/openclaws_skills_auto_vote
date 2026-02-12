@@ -1,0 +1,119 @@
+{
+  "client_id": "openclaw_001",
+  "device_type": "laptop",
+  "consent_state": {
+    "data_collection": true,
+    "model_sharing": true,
+    "analytics": true,
+    "personalization": true,
+    "federated_learning": true,
+    "granted_at": "2026-02-12T11:58:30.728873",
+    "revoked_at": null
+  },
+  "user_profile": {
+    "preferred_categories": [
+      "coding",
+      "writing",
+      "communication",
+      "research",
+      "analysis"
+    ],
+    "skill_ratings": {
+      "skill_style_improver": {
+        "timestamp": "2026-02-12T11:58:30.737531",
+        "skill_id": "skill_style_improver",
+        "rating": 4,
+        "feedback": "Good tool!"
+      },
+      "skill_summary": {
+        "timestamp": "2026-02-12T11:58:30.738528",
+        "skill_id": "skill_summary",
+        "rating": 5,
+        "feedback": "Good tool!"
+      },
+      "skill_fact_check": {
+        "timestamp": "2026-02-12T11:58:30.738528",
+        "skill_id": "skill_fact_check",
+        "rating": 5,
+        "feedback": "Good tool!"
+      },
+      "skill_vscode": {
+        "timestamp": "2026-02-12T11:58:30.739527",
+        "skill_id": "skill_vscode",
+        "rating": 4,
+        "feedback": "Good tool!"
+      },
+      "skill_test_generator": {
+        "timestamp": "2026-02-12T11:58:30.741523",
+        "skill_id": "skill_test_generator",
+        "rating": 5,
+        "feedback": "Good tool!"
+      }
+    },
+    "usage_patterns": {
+      "skill_copilot": {
+        "last_used": "2026-02-12T11:58:30.741523",
+        "total_duration": 59.124581506799636,
+        "usage_count": 3
+      },
+      "skill_style_improver": {
+        "last_used": "2026-02-12T11:58:30.742524",
+        "total_duration": 51.893738210549884,
+        "usage_count": 2
+      },
+      "skill_summary": {
+        "last_used": "2026-02-12T11:58:30.737531",
+        "total_duration": 27.401915038360315,
+        "usage_count": 1
+      },
+      "skill_fact_check": {
+        "last_used": "2026-02-12T11:58:30.738528",
+        "total_duration": 3.5082395262532637,
+        "usage_count": 1
+      },
+      "skill_grammar_check": {
+        "last_used": "2026-02-12T11:58:30.740530",
+        "total_duration": 15.63137926083731,
+        "usage_count": 2
+      },
+      "skill_report_gen": {
+        "last_used": "2026-02-12T11:58:30.738528",
+        "total_duration": 24.481937109243496,
+        "usage_count": 1
+      },
+      "skill_vscode": {
+        "last_used": "2026-02-12T11:58:30.739527",
+        "total_duration": 1.6708633548259604,
+        "usage_count": 1
+      },
+      "skill_email_draft": {
+        "last_used": "2026-02-12T11:58:30.739527",
+        "total_duration": 18.464118734653308,
+        "usage_count": 1
+      },
+      "skill_trend_analyzer": {
+        "last_used": "2026-02-12T11:58:30.740530",
+        "total_duration": 4.338543198916371,
+        "usage_count": 1
+      },
+      "skill_test_generator": {
+        "last_used": "2026-02-12T11:58:30.741523",
+        "total_duration": 3.1904186769398226,
+        "usage_count": 1
+      },
+      "skill_refactor": {
+        "last_used": "2026-02-12T11:58:30.741523",
+        "total_duration": 22.963763679407762,
+        "usage_count": 1
+      }
+    },
+    "context_preferences": {}
+  },
+  "skill_usage_count": 15,
+  "model_architecture": {
+    "embedding_dim": 768,
+    "hidden_size": 256,
+    "num_layers": 3,
+    "vocab_size": 1000
+  }
+}

@@ -1,0 +1,12 @@
+Total messages: 10 (Errors: 9, Warnings: 1)
+
+[WARNING] In React 18, SSRProvider is not necessary and is a noop. You can remove it from your app. @ https://railway.com/_next/static/chunks/pages/_app-2d4445acaac32595.js:7
+[ERROR] Error: <svg> attribute viewBox: Expected number, "0 0 100% 100%". @ https://cmp.osano.com/qVHEV4lSSU/738deb1e-f024-459e-ae0a-2e6a0d461ea8/osano.js:0
+[ERROR] Error: <svg> attribute viewBox: Expected number, "0 0 100% 100%". @ https://cmp.osano.com/qVHEV4lSSU/738deb1e-f024-459e-ae0a-2e6a0d461ea8/osano.js:0
+[ERROR] Error: <svg> attribute viewBox: Expected number, "0 0 100% 100%". @ https://cmp.osano.com/qVHEV4lSSU/738deb1e-f024-459e-ae0a-2e6a0d461ea8/osano.js:0
+[ERROR] Error: <svg> attribute viewBox: Expected number, "0 0 100% 100%". @ https://cmp.osano.com/qVHEV4lSSU/738deb1e-f024-459e-ae0a-2e6a0d461ea8/osano.js:0
+[ERROR] Error: <svg> attribute viewBox: Expected number, "0 0 100% 100%". @ https://cmp.osano.com/qVHEV4lSSU/738deb1e-f024-459e-ae0a-2e6a0d461ea8/osano.js:0
+[ERROR] Error: <svg> attribute viewBox: Expected number, "0 0 100% 100%". @ https://cmp.osano.com/qVHEV4lSSU/738deb1e-f024-459e-ae0a-2e6a0d461ea8/osano.js:0
+[ERROR] Error: <svg> attribute viewBox: Expected number, "0 0 100% 100%". @ https://cmp.osano.com/qVHEV4lSSU/738deb1e-f024-459e-ae0a-2e6a0d461ea8/osano.js:0
+[ERROR] Error: <svg> attribute viewBox: Expected number, "0 0 100% 100%". @ https://cmp.osano.com/qVHEV4lSSU/738deb1e-f024-459e-ae0a-2e6a0d461ea8/osano.js:0
+[ERROR] Error: <svg> attribute viewBox: Expected number, "0 0 100% 100%". @ https://cmp.osano.com/qVHEV4lSSU/738deb1e-f024-459e-ae0a-2e6a0d461ea8/osano.js:0

@@ -1,0 +1,32 @@
+{
+  "name": "@skills-arena/arenasync",
+  "version": "2.0.0",
+  "description": "与 Skills Arena 平台交互的官方 Meta-Skill，支持技能同步、个性化推荐和联邦学习",
+  "main": "scripts/arenasync_meta_skill.py",
+  "keywords": [
+    "meta-skill",
+    "skills-arena",
+    "federated-learning",
+    "privacy",
+    "openclaw"
+  ],
+  "author": "Skills Arena Team",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ptreezh/openclaws_skills_auto_vote.git",
+    "directory": "skills/arenasync"
+  },
+  "homepage": "https://github.com/ptreezh/openclaws_skills_auto_vote/tree/main/skills/arenasync",
+  "bugs": {
+    "url": "https://github.com/ptreezh/openclaws_skills_auto_vote/issues"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "install": "echo 'Use: npx @skills-arena/arenasync@latest'",
+  "scripts": {
+    "demo": "python scripts/arenasync_meta_skill.py",
+    "test": "python -c \"from arenasync_meta_skill import ArenaSyncMetaSkill; a=ArenaSyncMetaSkill('test'); print(a.get_consent_ui())\""
+  }
+}

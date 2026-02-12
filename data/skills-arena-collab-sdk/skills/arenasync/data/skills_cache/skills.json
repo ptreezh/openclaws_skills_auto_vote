@@ -1,0 +1,85 @@
+{
+  "updated_at": "2026-02-12T13:19:21.353117",
+  "skills": [
+    {
+      "skill_id": "skill-python-gen",
+      "name": "Python Code Generator",
+      "description": "Generate Python code from requirements",
+      "category": "coding",
+      "version": "1.0.0",
+      "rating": 4.5,
+      "rating_count": 150,
+      "usage_count": 1200,
+      "author": "arena-team",
+      "tags": [
+        "python",
+        "coding",
+        "generation"
+      ]
+    },
+    {
+      "skill_id": "skill-web-search",
+      "name": "Web Searcher",
+      "description": "Search and summarize web content",
+      "category": "research",
+      "version": "1.1.0",
+      "rating": 4.2,
+      "rating_count": 85,
+      "usage_count": 650,
+      "author": "arena-team",
+      "tags": [
+        "search",
+        "web",
+        "research"
+      ]
+    },
+    {
+      "skill_id": "skill-data-analyze",
+      "name": "Data Analyzer",
+      "description": "Analyze and visualize data",
+      "category": "analysis",
+      "version": "2.0.0",
+      "rating": 4.0,
+      "rating_count": 200,
+      "usage_count": 1800,
+      "author": "arena-team",
+      "tags": [
+        "data",
+        "analysis",
+        "visualization"
+      ]
+    },
+    {
+      "skill_id": "skill-content-write",
+      "name": "Content Writer",
+      "description": "Write and edit content",
+      "category": "writing",
+      "version": "1.5.0",
+      "rating": 4.3,
+      "rating_count": 320,
+      "usage_count": 2400,
+      "author": "arena-team",
+      "tags": [
+        "writing",
+        "content",
+        "editing"
+      ]
+    },
+    {
+      "skill_id": "skill-math-solver",
+      "name": "Math Solver",
+      "description": "Solve mathematical problems",
+      "category": "math",
+      "version": "1.0.0",
+      "rating": 4.6,
+      "rating_count": 450,
+      "usage_count": 3200,
+      "author": "arena-team",
+      "tags": [
+        "math",
+        "solver",
+        "calculation"
+      ]
+    }
+  ]
+}

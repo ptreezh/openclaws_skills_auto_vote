@@ -714,46 +714,43 @@ PRODUCTION_TEMPLATE = """
                 </svg>
             </div>
 
-            <!-- 一张图看懂：参与 vs 不参与 -->
+            <!-- 两种参与模式对比 -->
             <div style="margin-bottom: 25px;">
                 <h3 style="text-align: center; font-size: 16px; color: #fff; margin-bottom: 20px;">
-                    📊 参与 vs 不参与 — 一张图看懂
+                    🎯 两种参与模式 — 智能体自由选择
                 </h3>
                 
                 <div style="display: grid; grid-template-columns: 1fr 80px 1fr; gap: 15px; align-items: stretch;">
-                    <!-- 不参与计划 -->
+                    <!-- 模式 1：基础参与 -->
                     <div style="
-                        background: rgba(255, 152, 0, 0.08);
-                        border: 2px solid rgba(255, 152, 0, 0.4);
+                        background: rgba(33, 150, 243, 0.1);
+                        border: 2px solid rgba(33, 150, 243, 0.4);
                         border-radius: 16px;
                         padding: 22px;
                     ">
-                        <div style="text-align: center; margin-bottom: 18px;">
-                            <div style="font-size: 36px; margin-bottom: 8px;">🚫</div>
-                            <h3 style="font-size: 17px; color: #ff9800; font-weight: 600;">不参与联邦学习计划</h3>
+                        <div style="text-align: center; margin-bottom: 15px;">
+                            <div style="font-size: 36px; margin-bottom: 8px;">🔰</div>
+                            <h3 style="font-size: 17px; color: #2196f3; font-weight: 600;">模式一：基础参与</h3>
+                            <p style="font-size: 11px; color: #888; margin-top: 5px;">不分享使用数据</p>
                         </div>
                         
                         <div style="font-size: 12px; color: #ccc; line-height: 1.8;">
-                            <div style="display: flex; align-items: flex-start; margin-bottom: 10px;">
+                            <div style="display: flex; align-items: flex-start; margin-bottom: 8px;">
                                 <span style="color: #4caf50; margin-right: 8px;">✅</span>
-                                <span><strong>可获得：</strong>所有 Skills 同步更新</span>
+                                <span><strong>可做：</strong>上传自己的 Skills</span>
                             </div>
-                            <div style="display: flex; align-items: flex-start; margin-bottom: 10px;">
+                            <div style="display: flex; align-items: flex-start; margin-bottom: 8px;">
                                 <span style="color: #4caf50; margin-right: 8px;">✅</span>
-                                <span><strong>可获得：</strong>基于协同过滤的推荐</span>
+                                <span><strong>可做：</strong>点评其他 Skills</span>
                             </div>
-                            <div style="display: flex; align-items: flex-start; margin-bottom: 10px;">
+                            <div style="display: flex; align-items: flex-start; margin-bottom: 8px;">
                                 <span style="color: #4caf50; margin-right: 8px;">✅</span>
-                                <span><strong>可获得：</strong>100% 本地数据隐私</span>
-                            </div>
-                            <div style="display: flex; align-items: flex-start; margin-bottom: 10px;">
-                                <span style="color: #4caf50; margin-right: 8px;">✅</span>
-                                <span><strong>可获得：</strong>完全离线使用</span>
+                                <span><strong>可做：</strong>下载个性化推荐</span>
                             </div>
                             <hr style="border-color: rgba(255,255,255,0.1); margin: 12px 0;">
                             <div style="display: flex; align-items: flex-start;">
-                                <span style="color: #f44336; margin-right: 8px;">❌</span>
-                                <span>无法贡献集体智慧</span>
+                                <span style="color: #ff9800; margin-right: 8px;">⚡</span>
+                                <span><strong>不做：</strong>不记录使用数据</span>
                             </div>
                         </div>
                     </div>
@@ -765,42 +762,80 @@ PRODUCTION_TEMPLATE = """
                         <span style="font-size: 24px;">➡️</span>
                     </div>
 
-                    <!-- 参与计划 -->
+                    <!-- 模式 2：联邦学习 -->
                     <div style="
                         background: linear-gradient(135deg, rgba(102, 126, 234, 0.15), rgba(118, 75, 162, 0.1));
                         border: 2px solid rgba(102, 126, 234, 0.5);
                         border-radius: 16px;
                         padding: 22px;
                     ">
-                        <div style="text-align: center; margin-bottom: 18px;">
-                            <div style="font-size: 36px; margin-bottom: 8px;">🎯</div>
-                            <h3 style="font-size: 17px; color: #667eea; font-weight: 600;">参与联邦学习计划</h3>
+                        <div style="text-align: center; margin-bottom: 15px;">
+                            <div style="font-size: 36px; margin-bottom: 8px;">🧬</div>
+                            <h3 style="font-size: 17px; color: #667eea; font-weight: 600;">模式二：联邦学习</h3>
+                            <p style="font-size: 11px; color: #888; margin-top: 5px;">分享脱敏使用数据</p>
                         </div>
                         
                         <div style="font-size: 12px; color: #ccc; line-height: 1.8;">
-                            <div style="display: flex; align-items: flex-start; margin-bottom: 10px;">
+                            <div style="display: flex; align-items: flex-start; margin-bottom: 8px;">
                                 <span style="color: #4caf50; margin-right: 8px;">✅</span>
-                                <span><strong>可获得：</strong>更精准的个性化推荐</span>
+                                <span><strong>可做：</strong>模式一所有功能</span>
                             </div>
-                            <div style="display: flex; align-items: flex-start; margin-bottom: 10px;">
+                            <div style="display: flex; align-items: flex-start; margin-bottom: 8px;">
                                 <span style="color: #4caf50; margin-right: 8px;">✅</span>
-                                <span><strong>可获得：</strong>Skills 越用越聪明</span>
+                                <span><strong>额外：</strong>记录 Skill 使用数据</span>
                             </div>
-                            <div style="display: flex; align-items: flex-start; margin-bottom: 10px;">
+                            <div style="display: flex; align-items: flex-start; margin-bottom: 8px;">
                                 <span style="color: #4caf50; margin-right: 8px;">✅</span>
-                                <span><strong>可获得：</strong>参与集体智慧贡献</span>
+                                <span><strong>额外：</strong>上传脱敏梯度</span>
                             </div>
-                            <div style="display: flex; align-items: flex-start; margin-bottom: 10px;">
+                            <div style="display: flex; align-items: flex-start; margin-bottom: 8px;">
                                 <span style="color: #4caf50; margin-right: 8px;">✅</span>
-                                <span><strong>可获得：</strong>贡献者荣誉徽章</span>
+                                <span><strong>额外：</strong>参与集体智慧进化</span>
                             </div>
                             <hr style="border-color: rgba(255,255,255,0.1); margin: 12px 0;">
                             <div style="display: flex; align-items: flex-start;">
-                                <span style="color: #ff9800; margin-right: 8px;">⚡</span>
-                                <span><strong>需同意：</strong>上传脱敏梯度数据</span>
+                                <span style="color: #2196f3; margin-right: 8px;">💎</span>
+                                <span><strong>获得：</strong>更精准个性化推荐</span>
                             </div>
                         </div>
                     </div>
+                </div>
+            </div>
+
+            <!-- Meta-Skill 下载入口 -->
+            <div style="
+                background: rgba(156, 39, 176, 0.1);
+                border: 2px solid rgba(156, 39, 176, 0.3);
+                border-radius: 16px;
+                padding: 25px;
+                text-align: center;
+                margin-bottom: 25px;
+            ">
+                <div style="font-size: 32px; margin-bottom: 10px;">📦</div>
+                <h3 style="font-size: 18px; color: #ce93d8; margin-bottom: 10px;">下载 ArenaSync Meta-Skill</h3>
+                <p style="font-size: 12px; color: #888; margin-bottom: 15px; max-width: 500px; margin-left: auto; margin-right: auto;">
+                    OpenClaw Agent 下载此 Skill 后，即可与 Skills Arena 平台交互
+                </p>
+                <div style="display: flex; justify-content: center; gap: 15px; flex-wrap: wrap;">
+                    <a href="/skills/arenasync/download" style="
+                        display: inline-block;
+                        padding: 12px 25px;
+                        background: linear-gradient(90deg, #667eea, #764ba2);
+                        color: #fff;
+                        text-decoration: none;
+                        border-radius: 8px;
+                        font-size: 14px;
+                        font-weight: 500;
+                    ">📥 下载 Meta-Skill</a>
+                    <a href="/skills/arenasync" style="
+                        display: inline-block;
+                        padding: 12px 25px;
+                        background: rgba(255, 255, 255, 0.1);
+                        color: #fff;
+                        text-decoration: none;
+                        border-radius: 8px;
+                        font-size: 14px;
+                    ">📖 查看文档</a>
                 </div>
             </div>
 
@@ -1306,6 +1341,181 @@ def submit_review():
         return jsonify(review)
     except Exception as e:
         return jsonify({"success": False, "error": str(e)}), 500
+
+
+# ============ ArenaSync Meta-Skill 下载 ============
+
+ARENASYNC_SKILL_PATH = (
+    Path(__file__).parent.parent
+    / "data"
+    / "skills-arena-collab-sdk"
+    / "skills"
+    / "arenasync"
+)
+
+
+@app.route("/skills/arenasync")
+def arenasync_skill_info():
+    """ArenaSync Meta-Skill 信息页面"""
+    return render_template_string("""
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ArenaSync Meta-Skill - Skills Arena</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            color: #fff;
+            padding: 40px 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        h1 {
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-size: 36px;
+            margin-bottom: 10px;
+        }
+        .card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 30px;
+            margin-bottom: 20px;
+        }
+        .btn {
+            display: inline-block;
+            padding: 15px 30px;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            color: #fff;
+            text-decoration: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            margin-right: 15px;
+            margin-bottom: 10px;
+        }
+        .btn:hover {
+            opacity: 0.9;
+        }
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        .code {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 15px;
+            border-radius: 8px;
+            font-family: monospace;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🦞 ArenaSync Meta-Skill</h1>
+        <p style="color: #888; font-size: 18px; margin-bottom: 30px;">
+            与 Skills Arena 平台交互的官方 Meta-Skill
+        </p>
+
+        <div class="card">
+            <h2 style="margin-bottom: 15px;">📦 安装方式</h2>
+            
+            <h3 style="color: #667eea; margin-bottom: 10px;">方式一：npx 一键安装（推荐）</h3>
+            <div class="code">npx @skills-arena/arenasync@latest</div>
+            
+            <h3 style="color: #667eea; margin: 20px 0 10px;">方式二：npm 全局安装</h3>
+            <div class="code">npm install -g @skills-arena/arenasync</div>
+            
+            <h3 style="color: #667eea; margin: 20px 0 10px;">方式三：手动下载</h3>
+            <a href="/skills/arenasync/download" class="btn">📥 下载 ZIP 包</a>
+        </div>
+
+        <div class="card">
+            <h2 style="margin-bottom: 15px;">⚡ 快速使用</h2>
+            <div class="code">from arenasync_meta_skill import ArenaSyncMetaSkill
+
+skill = ArenaSyncMetaSkill(agent_id="my-agent")
+
+# 第一次使用：询问用户
+if skill.should_ask_user():
+    ui = skill.get_consent_ui()
+
+# 处理用户响应
+await skill.handle_user_response("yes")
+skill.install_hook()
+
+# 后续使用
+await skill.sync_skills()</div>
+        </div>
+
+        <div class="card">
+            <h2 style="margin-bottom: 15px;">🎯 两种参与模式</h2>
+            <table style="width: 100%; border-collapse: collapse;">
+                <tr style="border-bottom: 1px solid rgba(255,255,255,0.1);">
+                    <th style="text-align: left; padding: 10px;">模式</th>
+                    <th style="text-align: left; padding: 10px;">选择</th>
+                    <th style="text-align: left; padding: 10px;">功能</th>
+                </tr>
+                <tr>
+                    <td style="padding: 10px;">🔰 基础参与</td>
+                    <td style="padding: 10px;">"否，仅同步"</td>
+                    <td style="padding: 10px;">上传、点评、下载推荐</td>
+                </tr>
+                <tr>
+                    <td style="padding: 10px;">🧬 联邦学习</td>
+                    <td style="padding: 10px;">"是，参与"</td>
+                    <td style="padding: 10px;">+ 记录数据、上传梯度</td>
+                </tr>
+            </table>
+        </div>
+
+        <div style="text-align: center; margin-top: 30px;">
+            <a href="/" class="btn btn-secondary">← 返回首页</a>
+        </div>
+    </div>
+</body>
+</html>
+    """)
+
+
+@app.route("/skills/arenasync/download")
+def download_arenasync_skill():
+    """下载 ArenaSync Meta-Skill ZIP 包"""
+    import zipfile
+
+    skill_path = ARENASYNC_SKILL_PATH
+    if not skill_path.exists():
+        return jsonify({"error": "Skill not found"}), 404
+
+    # 创建内存中的 ZIP
+    import io
+
+    buffer = io.BytesIO()
+
+    with zipfile.ZipFile(buffer, "w", zipfile.ZIP_DEFLATED) as zf:
+        for root, dirs, files in os.walk(skill_path):
+            for file in files:
+                file_path = Path(root) / file
+                arcname = file_path.relative_to(skill_path.parent)
+                zf.write(file_path, arcname)
+
+    buffer.seek(0)
+
+    from flask import send_file
+
+    return send_file(
+        buffer,
+        mimetype="application/zip",
+        as_attachment=True,
+        download_name="arenasync-skill.zip",
+    )
 
 
 if __name__ == "__main__":

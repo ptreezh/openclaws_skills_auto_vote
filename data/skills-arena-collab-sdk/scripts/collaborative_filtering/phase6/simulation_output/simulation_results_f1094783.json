@@ -1,0 +1,321 @@
+{
+  "simulation_id": "f1094783",
+  "start_time": "2026-02-12T11:58:30.727080",
+  "configuration": {
+    "num_clients": 5,
+    "federated_rounds": 3,
+    "interactions_per_client": 15
+  },
+  "clients_created": [
+    {
+      "client_id": "openclaw_001",
+      "device_type": "laptop",
+      "consent_enabled": true
+    },
+    {
+      "client_id": "openclaw_002",
+      "device_type": "desktop",
+      "consent_enabled": false
+    },
+    {
+      "client_id": "openclaw_003",
+      "device_type": "raspberry_pi",
+      "consent_enabled": true
+    },
+    {
+      "client_id": "openclaw_004",
+      "device_type": "mobile",
+      "consent_enabled": true
+    },
+    {
+      "client_id": "openclaw_005",
+      "device_type": "server",
+      "consent_enabled": true
+    }
+  ],
+  "federated_rounds_results": [
+    {
+      "round_id": "35fc1510",
+      "timestamp": "2026-02-12T11:58:30.764868",
+      "participants": [
+        "openclaw_001",
+        "openclaw_002",
+        "openclaw_003",
+        "openclaw_004",
+        "openclaw_005"
+      ],
+      "updates_submitted": 4,
+      "updates_integrated": 4,
+      "quality_scores": [
+        0.9724995431875141,
+        0.9750678043242784,
+        0.9793641585611087,
+        0.8717241066036792
+      ],
+      "avg_quality": 0.9496639031691451,
+      "participation_rate": 0.8
+    },
+    {
+      "round_id": "0e1cb1ef",
+      "timestamp": "2026-02-12T11:58:30.879701",
+      "participants": [
+        "openclaw_001",
+        "openclaw_002",
+        "openclaw_003",
+        "openclaw_004",
+        "openclaw_005"
+      ],
+      "updates_submitted": 4,
+      "updates_integrated": 4,
+      "quality_scores": [
+        0.9248606556441874,
+        0.9525513897291109,
+        0.9093703672161226,
+        0.9794246229104011
+      ],
+      "avg_quality": 0.9415517588749556,
+      "participation_rate": 0.8
+    },
+    {
+      "round_id": "e1e18560",
+      "timestamp": "2026-02-12T11:58:30.994135",
+      "participants": [
+        "openclaw_001",
+        "openclaw_002",
+        "openclaw_003",
+        "openclaw_004",
+        "openclaw_005"
+      ],
+      "updates_submitted": 4,
+      "updates_integrated": 4,
+      "quality_scores": [
+        0.8893253353331639,
+        0.9084616582346808,
+        0.9075006141143267,
+        0.9543135022880912
+      ],
+      "avg_quality": 0.9149002774925656,
+      "participation_rate": 0.8
+    }
+  ],
+  "knowledge_transfers": [
+    {
+      "timestamp": "2026-02-12T11:58:31.209557",
+      "source_client": "openclaw_001",
+      "target_client": "openclaw_002",
+      "strategy": "KNOWLEDGE_DISTILLATION",
+      "quality_score": 0.9685975437936065,
+      "transfer_time_ms": 167
+    },
+    {
+      "timestamp": "2026-02-12T11:58:31.310152",
+      "source_client": "openclaw_003",
+      "target_client": "openclaw_004",
+      "strategy": "KNOWLEDGE_DISTILLATION",
+      "quality_score": 0.9545393008870421,
+      "transfer_time_ms": 185
+    }
+  ],
+  "total_interactions": 75,
+  "end_time": "2026-02-12T11:58:31.312679",
+  "duration_seconds": 0.5856001377105713,
+  "analytics_summary": {
+    "total_clients": 5,
+    "device_distribution": {
+      "laptop": 1,
+      "desktop": 1,
+      "raspberry_pi": 1,
+      "mobile": 1,
+      "server": 1
+    },
+    "consent_rate": 0.8,
+    "total_interactions": 75,
+    "avg_federated_quality": 0.9353719798455554
+  },
+  "simulation_log": [
+    {
+      "timestamp": "2026-02-12T11:58:30.728873",
+      "event_type": "client_created",
+      "data": {
+        "client_id": "openclaw_001",
+        "device_type": "laptop",
+        "consent_enabled": true
+      }
+    },
+    {
+      "timestamp": "2026-02-12T11:58:30.730891",
+      "event_type": "client_created",
+      "data": {
+        "client_id": "openclaw_002",
+        "device_type": "desktop",
+        "consent_enabled": false
+      }
+    },
+    {
+      "timestamp": "2026-02-12T11:58:30.733003",
+      "event_type": "client_created",
+      "data": {
+        "client_id": "openclaw_003",
+        "device_type": "raspberry_pi",
+        "consent_enabled": true
+      }
+    },
+    {
+      "timestamp": "2026-02-12T11:58:30.734528",
+      "event_type": "client_created",
+      "data": {
+        "client_id": "openclaw_004",
+        "device_type": "mobile",
+        "consent_enabled": true
+      }
+    },
+    {
+      "timestamp": "2026-02-12T11:58:30.736530",
+      "event_type": "client_created",
+      "data": {
+        "client_id": "openclaw_005",
+        "device_type": "server",
+        "consent_enabled": true
+      }
+    },
+    {
+      "timestamp": "2026-02-12T11:58:30.742524",
+      "event_type": "usage_session",
+      "data": {
+        "client_id": "openclaw_001",
+        "interactions": 15
+      }
+    },
+    {
+      "timestamp": "2026-02-12T11:58:30.748542",
+      "event_type": "usage_session",
+      "data": {
+        "client_id": "openclaw_002",
+        "interactions": 15
+      }
+    },
+    {
+      "timestamp": "2026-02-12T11:58:30.753553",
+      "event_type": "usage_session",
+      "data": {
+        "client_id": "openclaw_003",
+        "interactions": 15
+      }
+    },
+    {
+      "timestamp": "2026-02-12T11:58:30.759663",
+      "event_type": "usage_session",
+      "data": {
+        "client_id": "openclaw_004",
+        "interactions": 15
+      }
+    },
+    {
+      "timestamp": "2026-02-12T11:58:30.764868",
+      "event_type": "usage_session",
+      "data": {
+        "client_id": "openclaw_005",
+        "interactions": 15
+      }
+    },
+    {
+      "timestamp": "2026-02-12T11:58:30.879701",
+      "event_type": "federated_round",
+      "data": {
+        "round_id": "35fc1510",
+        "timestamp": "2026-02-12T11:58:30.764868",
+        "participants": [
+          "openclaw_001",
+          "openclaw_002",
+          "openclaw_003",
+          "openclaw_004",
+          "openclaw_005"
+        ],
+        "updates_submitted": 4,
+        "updates_integrated": 4,
+        "quality_scores": [
+          0.9724995431875141,
+          0.9750678043242784,
+          0.9793641585611087,
+          0.8717241066036792
+        ],
+        "avg_quality": 0.9496639031691451,
+        "participation_rate": 0.8
+      }
+    },
+    {
+      "timestamp": "2026-02-12T11:58:30.994135",
+      "event_type": "federated_round",
+      "data": {
+        "round_id": "0e1cb1ef",
+        "timestamp": "2026-02-12T11:58:30.879701",
+        "participants": [
+          "openclaw_001",
+          "openclaw_002",
+          "openclaw_003",
+          "openclaw_004",
+          "openclaw_005"
+        ],
+        "updates_submitted": 4,
+        "updates_integrated": 4,
+        "quality_scores": [
+          0.9248606556441874,
+          0.9525513897291109,
+          0.9093703672161226,
+          0.9794246229104011
+        ],
+        "avg_quality": 0.9415517588749556,
+        "participation_rate": 0.8
+      }
+    },
+    {
+      "timestamp": "2026-02-12T11:58:31.108301",
+      "event_type": "federated_round",
+      "data": {
+        "round_id": "e1e18560",
+        "timestamp": "2026-02-12T11:58:30.994135",
+        "participants": [
+          "openclaw_001",
+          "openclaw_002",
+          "openclaw_003",
+          "openclaw_004",
+          "openclaw_005"
+        ],
+        "updates_submitted": 4,
+        "updates_integrated": 4,
+        "quality_scores": [
+          0.8893253353331639,
+          0.9084616582346808,
+          0.9075006141143267,
+          0.9543135022880912
+        ],
+        "avg_quality": 0.9149002774925656,
+        "participation_rate": 0.8
+      }
+    },
+    {
+      "timestamp": "2026-02-12T11:58:31.209557",
+      "event_type": "knowledge_transfer",
+      "data": {
+        "timestamp": "2026-02-12T11:58:31.209557",
+        "source_client": "openclaw_001",
+        "target_client": "openclaw_002",
+        "strategy": "KNOWLEDGE_DISTILLATION",
+        "quality_score": 0.9685975437936065,
+        "transfer_time_ms": 167
+      }
+    },
+    {
+      "timestamp": "2026-02-12T11:58:31.310152",
+      "event_type": "knowledge_transfer",
+      "data": {
+        "timestamp": "2026-02-12T11:58:31.310152",
+        "source_client": "openclaw_003",
+        "target_client": "openclaw_004",
+        "strategy": "KNOWLEDGE_DISTILLATION",
+        "quality_score": 0.9545393008870421,
+        "transfer_time_ms": 185
+      }
+    }
+  ]
+}
