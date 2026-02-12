@@ -21,13 +21,14 @@ from skill_validator import SkillValidator
 from skill_uploader import SkillUploader
 
 app = Flask(__name__)
-app.config['MAX_CONTENT_LENGTH'] = 50 * 1024 * 1024  # 50MB 最大上传
+app.config["MAX_CONTENT_LENGTH"] = 50 * 1024 * 1024  # 50MB 最大上传
 
 # 初始化管理器
 data_dir = Path(__file__).parent.parent / "data"
 manager = ArenaManager(data_dir=str(data_dir))
-uploader = SkillUploader(upload_dir=str(data_dir / "uploads"), 
-                         skills_dir=str(data_dir / "skills"))
+uploader = SkillUploader(
+    upload_dir=str(data_dir / "uploads"), skills_dir=str(data_dir / "skills")
+)
 
 # 生产级 HTML 模板
 PRODUCTION_TEMPLATE = """
@@ -475,23 +476,26 @@ PRODUCTION_TEMPLATE = """
 <body>
     <div class="container">
         <!-- 导航栏 -->
-        <nav class="navbar">
+        <nav class="navbar" style="position: sticky; top: 0; z-index: 100; background: rgba(26, 26, 46, 0.95); backdrop-filter: blur(10px);">
             <div class="navbar-content">
-                <div class="logo">Skills Arena</div>
+                <div class="logo" style="display: flex; align-items: center; gap: 10px;">
+                    <span style="font-size: 28px;">🦞</span>
+                    <span style="font-size: 22px;">Skills Arena</span>
+                </div>
                 <div class="nav-tabs">
-                    <button class="nav-tab active" onclick="switchTab('upload')">上传 Skill</button>
-                    <button class="nav-tab" onclick="switchTab('validate')">规范验证</button>
-                    <button class="nav-tab" onclick="switchTab('skills')">Skills 列表</button>
-                    <button class="nav-tab" onclick="switchTab('arena')">擂台评比</button>
+                    <button class="nav-tab active" onclick="switchTab('upload')">📤 上传 Skill</button>
+                    <button class="nav-tab" onclick="switchTab('validate')">✅ 规范验证</button>
+                    <button class="nav-tab" onclick="switchTab('skills')">📋 Skills 列表</button>
+                    <button class="nav-tab" onclick="switchTab('arena')">🏆 擂台评比</button>
                 </div>
             </div>
         </nav>
 
-        <!-- 上传页面 -->
+        <!-- 操作区域 -->
         <div id="tab-upload" class="tab-content active">
             <div class="card">
                 <div class="card-header">
-                    <h2 class="card-title">上传 Skill</h2>
+                    <h2 class="card-title">📤 上传 Skill</h2>
                     <p class="card-subtitle">上传你的 Skill 包到平台，系统将自动验证规范合规性</p>
                 </div>
 
@@ -515,7 +519,7 @@ PRODUCTION_TEMPLATE = """
 
             <div class="card">
                 <div class="card-header">
-                    <h3 class="card-title">规范要求</h3>
+                    <h3 class="card-title">📝 规范要求</h3>
                 </div>
                 <div style="color: #aaa;">
                     <p><strong>必需文件：</strong></p>
@@ -539,7 +543,7 @@ PRODUCTION_TEMPLATE = """
         <div id="tab-validate" class="tab-content">
             <div class="card">
                 <div class="card-header">
-                    <h2 class="card-title">规范验证</h2>
+                    <h2 class="card-title">✅ 规范验证</h2>
                     <p class="card-subtitle">验证 Skill 包是否符合 agentskills.io 规范</p>
                 </div>
 
@@ -587,7 +591,7 @@ PRODUCTION_TEMPLATE = """
         <div id="tab-arena" class="tab-content">
             <div class="card">
                 <div class="card-header">
-                    <h2 class="card-title">Skills 擂台</h2>
+                    <h2 class="card-title">🏆 Skills 擂台</h2>
                     <p class="card-subtitle">查看各场景下 Skills 的评比结果</p>
                 </div>
                 <div id="arenaContent">
@@ -597,7 +601,227 @@ PRODUCTION_TEMPLATE = """
                 </div>
             </div>
         </div>
-    </div>
+
+        <!-- 首页横幅：平台理念和机制说明（操作区域下方） -->
+        <div class="hero-banner" style="
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.12) 0%, rgba(118, 75, 162, 0.12) 100%);
+            border-radius: 20px;
+            padding: 35px;
+            margin-top: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        ">
+            <!-- 平台理念 -->
+            <div style="text-align: center; margin-bottom: 35px;">
+                <h1 style="
+                    font-size: 38px;
+                    font-weight: bold;
+                    background: linear-gradient(90deg, #667eea, #764ba2);
+                    -webkit-background-clip: text;
+                    -webkit-text-fill-color: transparent;
+                    margin-bottom: 12px;
+                ">🦞 Skills Arena</h1>
+                <p style="font-size: 17px; color: #aaa; max-width: 600px; margin: 0 auto;">
+                    智能体社会化协同过滤 + 联邦学习平台
+                </p>
+            </div>
+
+            <!-- 三大核心概念 -->
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 35px;">
+                <div style="
+                    background: linear-gradient(135deg, rgba(102, 126, 234, 0.15), rgba(102, 126, 234, 0.05));
+                    border-radius: 14px; padding: 22px 18px; text-align: center;
+                    border: 1px solid rgba(102, 126, 234, 0.25);
+                ">
+                    <div style="font-size: 32px; margin-bottom: 8px;">🧬</div>
+                    <h3 style="font-size: 16px; color: #667eea; margin-bottom: 6px; font-weight: 600;">协同进化</h3>
+                    <p style="font-size: 12px; color: #888; line-height: 1.5;">
+                        Skills 越用越聪明<br>集体智慧驱动持续进化
+                    </p>
+                </div>
+                <div style="
+                    background: linear-gradient(135deg, rgba(156, 39, 176, 0.15), rgba(118, 75, 162, 0.05));
+                    border-radius: 14px; padding: 22px 18px; text-align: center;
+                    border: 1px solid rgba(156, 39, 176, 0.25);
+                ">
+                    <div style="font-size: 32px; margin-bottom: 8px;">👥</div>
+                    <h3 style="font-size: 16px; color: #9c27b0; margin-bottom: 6px; font-weight: 600;">社会化协同过滤</h3>
+                    <p style="font-size: 12px; color: #888; line-height: 1.5;">
+                        借鉴相似智能体经验<br>精准推荐最适合的 Skill
+                    </p>
+                </div>
+                <div style="
+                    background: linear-gradient(135deg, rgba(76, 175, 80, 0.15), rgba(76, 175, 80, 0.05));
+                    border-radius: 14px; padding: 22px 18px; text-align: center;
+                    border: 1px solid rgba(76, 175, 80, 0.25);
+                ">
+                    <div style="font-size: 32px; margin-bottom: 8px;">🔒</div>
+                    <h3 style="font-size: 16px; color: #4caf50; margin-bottom: 6px; font-weight: 600;">隐私保护联邦学习</h3>
+                    <p style="font-size: 12px; color: #888; line-height: 1.5;">
+                        只传梯度，不传内容<br>敏感数据永不离开设备
+                    </p>
+                </div>
+            </div>
+
+            <!-- 核心机制流程图 - SVG -->
+            <div style="
+                background: rgba(0, 0, 0, 0.2);
+                border-radius: 16px;
+                padding: 25px;
+                margin-bottom: 30px;
+            ">
+                <h3 style="text-align: center; font-size: 16px; color: #fff; margin-bottom: 20px;">
+                    🔄 联邦学习核心机制
+                </h3>
+                
+                <!-- SVG Flowchart -->
+                <svg viewBox="0 0 800 200" style="width: 100%; max-width: 800px; display: block; margin: 0 auto;">
+                    <defs>
+                        <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="0%">
+                            <stop offset="0%" style="stop-color:#667eea;stop-opacity:1" />
+                            <stop offset="100%" style="stop-color:#764ba2;stop-opacity:1" />
+                        </linearGradient>
+                        <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+                            <path d="M0,0 L0,6 L9,3 z" fill="#667eea" />
+                        </marker>
+                    </defs>
+                    
+                    <rect x="20" y="60" width="160" height="80" rx="12" fill="rgba(102,126,234,0.2)" stroke="#667eea" stroke-width="2"/>
+                    <text x="100" y="95" text-anchor="middle" fill="#fff" font-size="14" font-weight="600">🦞 智能体 A</text>
+                    <text x="100" y="120" text-anchor="middle" fill="#888" font-size="11">使用 Skill</text>
+                    
+                    <line x1="180" y1="100" x2="240" y2="100" stroke="#667eea" stroke-width="2" marker-end="url(#arrow)"/>
+                    
+                    <rect x="250" y="60" width="160" height="80" rx="12" fill="rgba(76,175,80,0.2)" stroke="#4caf50" stroke-width="2"/>
+                    <text x="330" y="95" text-anchor="middle" fill="#fff" font-size="14" font-weight="600">🛡️ 本地计算</text>
+                    <text x="330" y="120" text-anchor="middle" fill="#888" font-size="11">生成梯度</text>
+                    
+                    <line x1="410" y1="100" x2="470" y2="100" stroke="#4caf50" stroke-width="2" marker-end="url(#arrow)"/>
+                    
+                    <rect x="480" y="60" width="160" height="80" rx="12" fill="rgba(255,152,0,0.2)" stroke="#ff9800" stroke-width="2"/>
+                    <text x="560" y="95" text-anchor="middle" fill="#fff" font-size="14" font-weight="600">📊 上传梯度</text>
+                    <text x="560" y="120" text-anchor="middle" fill="#888" font-size="11">只传统计</text>
+                    
+                    <line x1="640" y1="100" x2="700" y2="100" stroke="#ff9800" stroke-width="2" marker-end="url(#arrow)"/>
+                    
+                    <rect x="710" y="60" width="80" height="80" rx="12" fill="url(#grad1)" stroke="none"/>
+                    <text x="750" y="95" text-anchor="middle" fill="#fff" font-size="14" font-weight="600">🧬 聚合</text>
+                    <text x="750" y="120" text-anchor="middle" fill="#888" font-size="11">进化</text>
+                    
+                    <rect x="20" y="160" width="760" height="30" rx="8" fill="rgba(76,175,80,0.1)" stroke="#4caf50" stroke-width="1" stroke-dasharray="4"/>
+                    <text x="400" y="180" text-anchor="middle" fill="#4caf50" font-size="12">
+                        🔒 隐私保护：敏感数据本地处理，仅上传脱敏梯度，原始内容永不离开设备
+                    </text>
+                </svg>
+            </div>
+
+            <!-- 一张图看懂：参与 vs 不参与 -->
+            <div style="margin-bottom: 25px;">
+                <h3 style="text-align: center; font-size: 16px; color: #fff; margin-bottom: 20px;">
+                    📊 参与 vs 不参与 — 一张图看懂
+                </h3>
+                
+                <div style="display: grid; grid-template-columns: 1fr 80px 1fr; gap: 15px; align-items: stretch;">
+                    <!-- 不参与计划 -->
+                    <div style="
+                        background: rgba(255, 152, 0, 0.08);
+                        border: 2px solid rgba(255, 152, 0, 0.4);
+                        border-radius: 16px;
+                        padding: 22px;
+                    ">
+                        <div style="text-align: center; margin-bottom: 18px;">
+                            <div style="font-size: 36px; margin-bottom: 8px;">🚫</div>
+                            <h3 style="font-size: 17px; color: #ff9800; font-weight: 600;">不参与联邦学习计划</h3>
+                        </div>
+                        
+                        <div style="font-size: 12px; color: #ccc; line-height: 1.8;">
+                            <div style="display: flex; align-items: flex-start; margin-bottom: 10px;">
+                                <span style="color: #4caf50; margin-right: 8px;">✅</span>
+                                <span><strong>可获得：</strong>所有 Skills 同步更新</span>
+                            </div>
+                            <div style="display: flex; align-items: flex-start; margin-bottom: 10px;">
+                                <span style="color: #4caf50; margin-right: 8px;">✅</span>
+                                <span><strong>可获得：</strong>基于协同过滤的推荐</span>
+                            </div>
+                            <div style="display: flex; align-items: flex-start; margin-bottom: 10px;">
+                                <span style="color: #4caf50; margin-right: 8px;">✅</span>
+                                <span><strong>可获得：</strong>100% 本地数据隐私</span>
+                            </div>
+                            <div style="display: flex; align-items: flex-start; margin-bottom: 10px;">
+                                <span style="color: #4caf50; margin-right: 8px;">✅</span>
+                                <span><strong>可获得：</strong>完全离线使用</span>
+                            </div>
+                            <hr style="border-color: rgba(255,255,255,0.1); margin: 12px 0;">
+                            <div style="display: flex; align-items: flex-start;">
+                                <span style="color: #f44336; margin-right: 8px;">❌</span>
+                                <span>无法贡献集体智慧</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 箭头 -->
+                    <div style="display: flex; flex-direction: column; justify-content: center; align-items: center; color: #667eea;">
+                        <span style="font-size: 24px;">⬅️</span>
+                        <span style="font-size: 11px; color: #888; margin-top: 5px;">自由选择</span>
+                        <span style="font-size: 24px;">➡️</span>
+                    </div>
+
+                    <!-- 参与计划 -->
+                    <div style="
+                        background: linear-gradient(135deg, rgba(102, 126, 234, 0.15), rgba(118, 75, 162, 0.1));
+                        border: 2px solid rgba(102, 126, 234, 0.5);
+                        border-radius: 16px;
+                        padding: 22px;
+                    ">
+                        <div style="text-align: center; margin-bottom: 18px;">
+                            <div style="font-size: 36px; margin-bottom: 8px;">🎯</div>
+                            <h3 style="font-size: 17px; color: #667eea; font-weight: 600;">参与联邦学习计划</h3>
+                        </div>
+                        
+                        <div style="font-size: 12px; color: #ccc; line-height: 1.8;">
+                            <div style="display: flex; align-items: flex-start; margin-bottom: 10px;">
+                                <span style="color: #4caf50; margin-right: 8px;">✅</span>
+                                <span><strong>可获得：</strong>更精准的个性化推荐</span>
+                            </div>
+                            <div style="display: flex; align-items: flex-start; margin-bottom: 10px;">
+                                <span style="color: #4caf50; margin-right: 8px;">✅</span>
+                                <span><strong>可获得：</strong>Skills 越用越聪明</span>
+                            </div>
+                            <div style="display: flex; align-items: flex-start; margin-bottom: 10px;">
+                                <span style="color: #4caf50; margin-right: 8px;">✅</span>
+                                <span><strong>可获得：</strong>参与集体智慧贡献</span>
+                            </div>
+                            <div style="display: flex; align-items: flex-start; margin-bottom: 10px;">
+                                <span style="color: #4caf50; margin-right: 8px;">✅</span>
+                                <span><strong>可获得：</strong>贡献者荣誉徽章</span>
+                            </div>
+                            <hr style="border-color: rgba(255,255,255,0.1); margin: 12px 0;">
+                            <div style="display: flex; align-items: flex-start;">
+                                <span style="color: #ff9800; margin-right: 8px;">⚡</span>
+                                <span><strong>需同意：</strong>上传脱敏梯度数据</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 隐私保护强调 -->
+            <div style="
+                background: rgba(76, 175, 80, 0.12);
+                border: 1px solid rgba(76, 175, 80, 0.3);
+                border-radius: 12px;
+                padding: 14px 20px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 12px;
+                flex-wrap: wrap;
+            ">
+                <span style="font-size: 18px;">🔐</span>
+                <span style="color: #4caf50; font-size: 12px;">
+                    <strong>隐私保护承诺：</strong>只传梯度不传内容 | 数据本地处理 | 可随时退出 | 敏感信息永不离开设备
+                </span>
+            </div>
+        </div>
 
     <script>
         // 标签页切换
@@ -610,7 +834,15 @@ PRODUCTION_TEMPLATE = """
             });
             
             document.getElementById('tab-' + tabName).classList.add('active');
-            event.target.classList.add('active');
+            // 使用 this 代替 event.target（在 onclick 中 this 指向被点击的元素）
+            const clickedTab = document.querySelectorAll('.nav-tab')[0];
+            // 找到对应的 tab 并添加 active 类
+            const tabs = document.querySelectorAll('.nav-tab');
+            const tabNames = ['upload', 'validate', 'skills', 'arena'];
+            const index = tabNames.indexOf(tabName);
+            if (index >= 0 && tabs[index]) {
+                tabs[index].classList.add('active');
+            }
             
             // 加载对应数据
             if (tabName === 'skills') loadSkills();
@@ -945,42 +1177,39 @@ PRODUCTION_TEMPLATE = """
 
 # ============ API 路由 ============
 
-@app.route('/')
+
+@app.route("/")
 def index():
     """主页"""
     return render_template_string(PRODUCTION_TEMPLATE)
 
 
-@app.route('/api/upload', methods=['POST'])
+@app.route("/api/upload", methods=["POST"])
 def upload_skill():
     """上传 Skill 包"""
     try:
         # 检查文件
-        if 'files' not in request.files:
-            return jsonify({
-                'success': False,
-                'error': '没有上传文件'
-            })
+        if "files" not in request.files:
+            return jsonify({"success": False, "error": "没有上传文件"})
 
-        files = request.files.getlist('files')
-        if not files or files[0].filename == '':
-            return jsonify({
-                'success': False,
-                'error': '文件为空'
-            })
+        files = request.files.getlist("files")
+        if not files or files[0].filename == "":
+            return jsonify({"success": False, "error": "文件为空"})
 
         # 保存到临时目录
-        temp_dir = Path(data_dir / "uploads" / f"upload_{datetime.now().strftime('%Y%m%d_%H%M%S')}")
+        temp_dir = Path(
+            data_dir / "uploads" / f"upload_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
+        )
         temp_dir.mkdir(parents=True, exist_ok=True)
 
         # 处理上传文件
         for file in files:
             file_path = temp_dir / file.filename
-            
+
             # 如果是目录，创建子目录
-            if '/' in file.filename:
+            if "/" in file.filename:
                 file_path.parent.mkdir(parents=True, exist_ok=True)
-            
+
             file.save(str(file_path))
 
         # 检查是否是 ZIP 文件
@@ -988,9 +1217,10 @@ def upload_skill():
         if zip_files:
             # 解压 ZIP 文件
             import zipfile
-            with zipfile.ZipFile(zip_files[0], 'r') as zip_ref:
+
+            with zipfile.ZipFile(zip_files[0], "r") as zip_ref:
                 zip_ref.extractall(temp_dir / "extracted")
-            
+
             # 使用解压后的内容
             upload_path = str(temp_dir / "extracted")
         else:
@@ -1002,89 +1232,83 @@ def upload_skill():
         return jsonify(result)
 
     except Exception as e:
-        return jsonify({
-            'success': False,
-            'error': str(e)
-        }), 500
+        return jsonify({"success": False, "error": str(e)}), 500
 
 
-@app.route('/api/validate', methods=['GET'])
+@app.route("/api/validate", methods=["GET"])
 def validate_skill():
     """验证 Skill"""
-    path = request.args.get('path')
+    path = request.args.get("path")
     if not path:
-        return jsonify({'success': False, 'error': '缺少路径参数'})
+        return jsonify({"success": False, "error": "缺少路径参数"})
 
     try:
         validator = SkillValidator()
         result = validator.validate_skill(path)
         return jsonify(result)
     except Exception as e:
-        return jsonify({
-            'success': False,
-            'error': str(e)
-        }), 500
+        return jsonify({"success": False, "error": str(e)}), 500
 
 
-@app.route('/api/skills/uploaded', methods=['GET'])
+@app.route("/api/skills/uploaded", methods=["GET"])
 def get_uploaded_skills():
     """获取已上传的 Skills"""
     try:
         skills = uploader.list_uploaded_skills()
         return jsonify(skills)
     except Exception as e:
-        return jsonify({'success': False, 'error': str(e)}), 500
+        return jsonify({"success": False, "error": str(e)}), 500
 
 
-@app.route('/api/scenarios', methods=['GET'])
+@app.route("/api/scenarios", methods=["GET"])
 def get_scenarios():
     """获取所有场景"""
     try:
         scenarios = manager.list_scenarios()
         return jsonify(scenarios)
     except Exception as e:
-        return jsonify({'success': False, 'error': str(e)}), 500
+        return jsonify({"success": False, "error": str(e)}), 500
 
 
-@app.route('/api/skills', methods=['GET'])
+@app.route("/api/skills", methods=["GET"])
 def get_skills():
     """获取所有 Skills"""
     try:
         skills = manager.list_skills()
         return jsonify(skills)
     except Exception as e:
-        return jsonify({'success': False, 'error': str(e)}), 500
+        return jsonify({"success": False, "error": str(e)}), 500
 
 
-@app.route('/api/leaderboard/<scenario_id>', methods=['GET'])
+@app.route("/api/leaderboard/<scenario_id>", methods=["GET"])
 def get_leaderboard(scenario_id):
     """获取排行榜"""
     try:
         leaderboard = manager.generate_leaderboard(scenario_id)
         return jsonify(leaderboard)
     except Exception as e:
-        return jsonify({'success': False, 'error': str(e)}), 500
+        return jsonify({"success": False, "error": str(e)}), 500
 
 
-@app.route('/api/reviews', methods=['POST'])
+@app.route("/api/reviews", methods=["POST"])
 def submit_review():
     """提交评价"""
     try:
         data = request.get_json()
         review = manager.submit_review(
-            scenario_id=data.get('scenario_id'),
-            skill_id=data.get('skill_id'),
-            user_id=data.get('user_id'),
-            rating=data.get('rating'),
-            metrics=data.get('metrics', {}),
-            comment=data.get('comment', '')
+            scenario_id=data.get("scenario_id"),
+            skill_id=data.get("skill_id"),
+            user_id=data.get("user_id"),
+            rating=data.get("rating"),
+            metrics=data.get("metrics", {}),
+            comment=data.get("comment", ""),
         )
         return jsonify(review)
     except Exception as e:
-        return jsonify({'success': False, 'error': str(e)}), 500
+        return jsonify({"success": False, "error": str(e)}), 500
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     print("=" * 80)
     print("启动 Skills Arena 生产级服务器")
     print("=" * 80)
@@ -1097,5 +1321,5 @@ if __name__ == '__main__':
     print("  • Skills 擂台评比")
     print("  • 实时排行榜")
     print("=" * 80)
-    
-    app.run(host='0.0.0.0', port=5000, debug=True)
+
+    app.run(host="0.0.0.0", port=5000, debug=True)
