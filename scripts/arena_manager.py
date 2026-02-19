@@ -15,6 +15,17 @@ from pathlib import Path
 from typing import Dict, List, Optional
 from datetime import datetime
 
+# 导入自定义异常和日志
+from core.exceptions import (
+    SkillNotFoundError,
+    ValidationError,
+    FileOperationError,
+)
+from core.logging_config import get_logger
+
+
+logger = get_logger("arena.manager")
+
 
 class ArenaManager:
     """
@@ -82,9 +93,12 @@ class ArenaManager:
 
         self._save_scenario(scenario_id, scenario)
 
-        print(f"✓ Created scenario: {scenario_id}")
-        print(f"  Title: {title}")
-        print(f"  Category: {category}")
+        logger.info(
+            "Scenario created",
+            scenario_id=scenario_id,
+            title=title,
+            category=category,
+        )
 
         return scenario
 
@@ -120,9 +134,12 @@ class ArenaManager:
 
         self._save_skill(skill_id, skill)
 
-        print(f"✓ Registered skill: {skill_id}")
-        print(f"  Name: {skill_name}")
-        print(f"  Author: {author}")
+        logger.info(
+            "Skill registered",
+            skill_id=skill_id,
+            skill_name=skill_name,
+            author=author,
+        )
 
         return skill
 
@@ -136,18 +153,28 @@ class ArenaManager:
 
         Returns:
             更新后的场景数据
+
+        Raises:
+            ValueError: 如果场景或 Skill 不存在
         """
         scenario = self.load_scenario(scenario_id)
         if not scenario:
-            raise ValueError(f"Scenario {scenario_id} not found")
+            raise ValidationError(
+                message=f"Scenario {scenario_id} not found",
+                field="scenario_id",
+            )
 
         skill = self.load_skill(skill_id)
         if not skill:
-            raise ValueError(f"Skill {skill_id} not found")
+            raise SkillNotFoundError(skill_id=skill_id)
 
         # 检查是否已注册
         if skill_id in scenario["registered_skills"]:
-            print(f"⚠ Skill {skill_id} already in scenario {scenario_id}")
+            logger.warning(
+                "Skill already in scenario",
+                skill_id=skill_id,
+                scenario_id=scenario_id,
+            )
             return scenario
 
         # 添加到场景
@@ -163,7 +190,11 @@ class ArenaManager:
         self._save_scenario(scenario_id, scenario)
         self._save_skill(skill_id, skill)
 
-        print(f"✓ Added skill {skill_id} to scenario {scenario_id}")
+        logger.info(
+            "Skill added to scenario",
+            skill_id=skill_id,
+            scenario_id=scenario_id,
+        )
 
         return scenario
 
@@ -189,21 +220,38 @@ class ArenaManager:
 
         Returns:
             评价数据
+
+        Raises:
+            ValidationError: 如果验证失败
+            SkillNotFoundError: 如果 Skill 不存在
         """
-        # 验证
+        # 验证场景
         scenario = self.load_scenario(scenario_id)
         if not scenario:
-            raise ValueError(f"Scenario {scenario_id} not found")
+            raise ValidationError(
+                message=f"Scenario {scenario_id} not found",
+                field="scenario_id",
+            )
 
+        # 验证 Skill
         skill = self.load_skill(skill_id)
         if not skill:
-            raise ValueError(f"Skill {skill_id} not found")
+            raise SkillNotFoundError(skill_id=skill_id)
 
+        # 验证 Skill 是否在场景中
         if skill_id not in scenario["registered_skills"]:
-            raise ValueError(f"Skill {skill_id} not registered in scenario {scenario_id}")
+            raise ValidationError(
+                message=f"Skill {skill_id} not registered in scenario {scenario_id}",
+                field="skill_id",
+            )
 
+        # 验证评分范围
         if not (1 <= rating <= 5):
-            raise ValueError("Rating must be between 1 and 5")
+            raise ValidationError(
+                message="Rating must be between 1 and 5",
+                field="rating",
+                details={"min": 1, "max": 5, "actual": rating},
+            )
 
         # 创建评价
         review_id = f"review-{uuid.uuid4().hex[:12]}"
@@ -236,9 +284,14 @@ class ArenaManager:
         # 更新 Skill 指标
         self._update_skill_metrics(skill_id)
 
-        print(f"✓ Submitted review: {review_id}")
-        print(f"  Skill: {skill['skill_name']}")
-        print(f"  Rating: {rating}/5")
+        logger.info(
+            "Review submitted",
+            review_id=review_id,
+            skill_id=skill_id,
+            skill_name=skill["skill_name"],
+            rating=rating,
+            user_id=user_id,
+        )
 
         return review
 
@@ -289,10 +342,17 @@ class ArenaManager:
         """
         reviews = []
         for review_file in self.reviews_dir.glob("review-*.json"):
-            with open(review_file, 'r', encoding='utf-8') as f:
-                review = json.load(f)
-                if review["skill_id"] == skill_id:
-                    reviews.append(review)
+            try:
+                with open(review_file, 'r', encoding='utf-8') as f:
+                    review = json.load(f)
+                    if review["skill_id"] == skill_id:
+                        reviews.append(review)
+            except Exception as e:
+                logger.warning(
+                    "Failed to read review file",
+                    file=str(review_file),
+                    exception=e,
+                )
         return reviews
 
     def generate_leaderboard(self, scenario_id: str) -> Dict:
@@ -304,10 +364,16 @@ class ArenaManager:
 
         Returns:
             排行榜数据
+
+        Raises:
+            ValidationError: 如果场景不存在
         """
         scenario = self.load_scenario(scenario_id)
         if not scenario:
-            raise ValueError(f"Scenario {scenario_id} not found")
+            raise ValidationError(
+                message=f"Scenario {scenario_id} not found",
+                field="scenario_id",
+            )
 
         skill_ids = scenario["registered_skills"]
         leaderboard_data = []
@@ -344,11 +410,22 @@ class ArenaManager:
         # 保存排行榜
         leaderboard_id = f"leaderboard-{uuid.uuid4().hex[:12]}"
         leaderboard_path = self.leaderboards_dir / f"{leaderboard_id}.json"
-        with open(leaderboard_path, 'w', encoding='utf-8') as f:
-            json.dump(leaderboard, f, indent=2, ensure_ascii=False)
+        try:
+            with open(leaderboard_path, 'w', encoding='utf-8') as f:
+                json.dump(leaderboard, f, indent=2, ensure_ascii=False)
+        except Exception as e:
+            raise FileOperationError(
+                message="Failed to save leaderboard",
+                file_path=str(leaderboard_path),
+                operation="write",
+            ) from e
 
-        print(f"✓ Generated leaderboard: {leaderboard_id}")
-        print(f"  Total skills: {len(leaderboard_data)}")
+        logger.info(
+            "Leaderboard generated",
+            leaderboard_id=leaderboard_id,
+            scenario_id=scenario_id,
+            total_skills=len(leaderboard_data),
+        )
 
         return leaderboard
 
@@ -357,49 +434,100 @@ class ArenaManager:
         scenario_path = self.scenarios_dir / f"{scenario_id}.json"
         if not scenario_path.exists():
             return None
-        with open(scenario_path, 'r', encoding='utf-8') as f:
-            return json.load(f)
+        try:
+            with open(scenario_path, 'r', encoding='utf-8') as f:
+                return json.load(f)
+        except Exception as e:
+            logger.error(
+                "Failed to load scenario",
+                scenario_id=scenario_id,
+                exception=e,
+            )
+            return None
 
     def load_skill(self, skill_id: str) -> Optional[Dict]:
         """加载 Skill"""
         skill_path = self.skills_dir / f"{skill_id}.json"
         if not skill_path.exists():
             return None
-        with open(skill_path, 'r', encoding='utf-8') as f:
-            return json.load(f)
+        try:
+            with open(skill_path, 'r', encoding='utf-8') as f:
+                return json.load(f)
+        except Exception as e:
+            logger.error(
+                "Failed to load skill",
+                skill_id=skill_id,
+                exception=e,
+            )
+            return None
 
     def _save_scenario(self, scenario_id: str, scenario: Dict):
         """保存场景"""
         scenario_path = self.scenarios_dir / f"{scenario_id}.json"
-        with open(scenario_path, 'w', encoding='utf-8') as f:
-            json.dump(scenario, f, indent=2, ensure_ascii=False)
+        try:
+            with open(scenario_path, 'w', encoding='utf-8') as f:
+                json.dump(scenario, f, indent=2, ensure_ascii=False)
+        except Exception as e:
+            raise FileOperationError(
+                message="Failed to save scenario",
+                file_path=str(scenario_path),
+                operation="write",
+            ) from e
 
     def _save_skill(self, skill_id: str, skill: Dict):
         """保存 Skill"""
         skill_path = self.skills_dir / f"{skill_id}.json"
-        with open(skill_path, 'w', encoding='utf-8') as f:
-            json.dump(skill, f, indent=2, ensure_ascii=False)
+        try:
+            with open(skill_path, 'w', encoding='utf-8') as f:
+                json.dump(skill, f, indent=2, ensure_ascii=False)
+        except Exception as e:
+            raise FileOperationError(
+                message="Failed to save skill",
+                file_path=str(skill_path),
+                operation="write",
+            ) from e
 
     def _save_review(self, review_id: str, review: Dict):
         """保存评价"""
         review_path = self.reviews_dir / f"{review_id}.json"
-        with open(review_path, 'w', encoding='utf-8') as f:
-            json.dump(review, f, indent=2, ensure_ascii=False)
+        try:
+            with open(review_path, 'w', encoding='utf-8') as f:
+                json.dump(review, f, indent=2, ensure_ascii=False)
+        except Exception as e:
+            raise FileOperationError(
+                message="Failed to save review",
+                file_path=str(review_path),
+                operation="write",
+            ) from e
 
     def list_scenarios(self) -> List[Dict]:
         """列出所有场景"""
         scenarios = []
         for scenario_file in self.scenarios_dir.glob("scenario-*.json"):
-            with open(scenario_file, 'r', encoding='utf-8') as f:
-                scenarios.append(json.load(f))
+            try:
+                with open(scenario_file, 'r', encoding='utf-8') as f:
+                    scenarios.append(json.load(f))
+            except Exception as e:
+                logger.warning(
+                    "Failed to read scenario file",
+                    file=str(scenario_file),
+                    exception=e,
+                )
         return scenarios
 
     def list_skills(self) -> List[Dict]:
         """列出所有 Skills"""
         skills = []
         for skill_file in self.skills_dir.glob("skill-*.json"):
-            with open(skill_file, 'r', encoding='utf-8') as f:
-                skills.append(json.load(f))
+            try:
+                with open(skill_file, 'r', encoding='utf-8') as f:
+                    skills.append(json.load(f))
+            except Exception as e:
+                logger.warning(
+                    "Failed to read skill file",
+                    file=str(skill_file),
+                    exception=e,
+                )
         return skills
 
     def get_scenario_reviews(self, scenario_id: str, skill_id: str = None) -> List[Dict]:
@@ -415,11 +543,18 @@ class ArenaManager:
         """
         reviews = []
         for review_file in self.reviews_dir.glob("review-*.json"):
-            with open(review_file, 'r', encoding='utf-8') as f:
-                review = json.load(f)
-                if review["scenario_id"] == scenario_id:
-                    if skill_id is None or review["skill_id"] == skill_id:
-                        reviews.append(review)
+            try:
+                with open(review_file, 'r', encoding='utf-8') as f:
+                    review = json.load(f)
+                    if review["scenario_id"] == scenario_id:
+                        if skill_id is None or review["skill_id"] == skill_id:
+                            reviews.append(review)
+            except Exception as e:
+                logger.warning(
+                    "Failed to read review file",
+                    file=str(review_file),
+                    exception=e,
+                )
         # 按时间倒序
         reviews.sort(key=lambda x: x["created_at"], reverse=True)
         return reviews

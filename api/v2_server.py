@@ -30,15 +30,27 @@ from typing import Optional, List, Dict
 from collections import defaultdict
 import re
 
+# 导入核心异常处理和日志
+from core.exceptions import ArenaException, ValidationError, SkillNotFoundError, DatabaseError
+from core.error_codes import ErrorCodes
+from core.logging_config import get_logger, setup_logging
+from core.fastapi_error_handler import setup_error_handlers
+from core.database_wrapper import db_wrapper
+
+logger = get_logger("arena.api")
+
+# 设置日志
+setup_logging()
+
 # 数据库连接状态
 DB_AVAILABLE = False
 try:
-    from scripts.database.db import db
+    from scripts.database.db import db as legacy_db
 
     DB_AVAILABLE = True
 except ImportError:
-    print("警告: 数据库模块不可用，将以离线模式运行")
-    db = None
+    logger.warning("数据库模块不可用，将以离线模式运行")
+    legacy_db = None
 
 
 # ========== 配置 ==========
@@ -62,30 +74,30 @@ async def lifespan(app: FastAPI):
     """Initialize database on startup and close on shutdown."""
     global DB_AVAILABLE
     # Startup
-    if DB_AVAILABLE and db:
+    if DB_AVAILABLE and db_wrapper:
         try:
-            await db.init()
-            print("Database connection pool initialized")
+            await db_wrapper.init()
+            logger.info("Database connection pool initialized")
             DB_AVAILABLE = True
         except Exception as e:
-            print(f"警告: 数据库连接失败，将以离线模式运行: {e}")
+            logger.warning("数据库连接失败，将以离线模式运行", exception=e)
             DB_AVAILABLE = False
     else:
-        print("以离线模式运行（无数据库）")
+        logger.info("以离线模式运行（无数据库）")
     yield
     # Shutdown
-    if DB_AVAILABLE and db:
+    if DB_AVAILABLE and db_wrapper:
         try:
-            await db.close()
-            print("Database connection pool closed")
-        except:
-            pass
+            await db_wrapper.close()
+            logger.info("Database connection pool closed")
+        except Exception as e:
+            logger.error("关闭数据库连接失败", exception=e)
 
 
 app = FastAPI(
     title="Skills Arena API",
     description="OpenClow Skills 社会化验证平台",
-    version="2.0.0",
+    version="2.1.0",
     lifespan=lifespan,
 )
 
@@ -97,6 +109,10 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# 设置错误处理器
+setup_error_handlers(app)
+logger.info("Error handlers registered")
 
 security = HTTPBearer()
 

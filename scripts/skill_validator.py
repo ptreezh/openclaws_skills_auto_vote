@@ -15,6 +15,12 @@ from datetime import datetime
 from typing import Dict, List, Optional, Tuple
 import hashlib
 
+# 导入日志系统
+from core.logging_config import get_logger
+
+
+logger = get_logger("arena.validator")
+
 
 class SkillValidator:
     """Skill 验证器核心类"""
@@ -36,24 +42,24 @@ class SkillValidator:
         r'/home/\w+/',
         r'/Users/\w+/',
         r'C:\\Users\\\\w+\\',
-        
+
         # 固定外部 URL（允许的域名白名单）
         r'https?://api\.openai\.com',
         r'https?://api\.anthropic\.com',
         r'https?://generativelanguage\.googleapis\.com',
         r'https?://github\.com',
         r'https?://coze\.cn',
-        
+
         # 内网地址
         r'https?://10\.\d+\.\d+\.\d+',
         r'https?://172\.(1[6-9]|2[0-9]|3[01])\.\d+\.\d+',
-        
+
         # 硬编码密钥提示
         r'api_key\s*=\s*["\'][\w-]{32,}["\']',
         r'secret\s*=\s*["\'][\w-]{32,}["\']',
         r'token\s*=\s*["\'][\w-]{32,}["\']',
         r'password\s*=\s*["\'][\w-]{8,}["\']',
-        
+
         # 硬编码 IP 地址
         r'\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}:\d+\b',
     ]
@@ -111,9 +117,7 @@ class SkillValidator:
         Returns:
             验证结果字典
         """
-        print(f"\n{'='*80}")
-        print(f"开始验证 Skill: {skill_path}")
-        print(f"{'='*80}")
+        logger.info(f"Starting skill validation", skill_path=skill_path)
 
         skill_dir = Path(skill_path)
 
@@ -147,7 +151,7 @@ class SkillValidator:
 
     def _check_file_structure(self, skill_dir: Path) -> None:
         """检查文件结构是否符合规范"""
-        print("\n[1/6] 检查文件结构...")
+        logger.info("Checking file structure")
 
         results = {}
         self.validation_results["total_checks"] += len(self.REQUIRED_FILES)
@@ -164,17 +168,17 @@ class SkillValidator:
 
             if exists:
                 self.validation_results["passed_checks"] += 1
-                print(f"  ✓ {required}")
+                logger.debug(f"Found required: {required}")
             else:
                 self.validation_results["failed_checks"] += 1
                 self._add_warning("文件缺失", f"缺少必需文件/目录: {required}")
-                print(f"  ✗ {required} (缺失)")
+                logger.warning(f"Missing required: {required}")
 
         self.validation_results["file_structure_check"] = results
 
     def _validate_skill_md(self, skill_dir: Path) -> None:
         """验证 SKILL.md 文件内容"""
-        print("\n[2/6] 验证 SKILL.md 文件...")
+        logger.info("Validating SKILL.md")
 
         skill_md_path = skill_dir / "SKILL.md"
         if not skill_md_path.exists():
@@ -205,23 +209,23 @@ class SkillValidator:
 
             if found:
                 self.validation_results["passed_checks"] += 1
-                print(f"  ✓ 包含: {field}")
+                logger.debug(f"Found field: {field}")
             else:
                 self.validation_results["failed_checks"] += 1
                 self._add_warning("字段缺失", f"SKILL.md 缺少必需字段: {field}")
-                print(f"  ✗ 缺少: {field}")
+                logger.warning(f"Missing field: {field}")
 
         # 检查文档完整性
         if len(content) < 100:
             self._add_warning("文档过短", "SKILL.md 内容过少，可能不完整")
-            print(f"  ⚠ 文档内容过短 ({len(content)} 字符)")
+            logger.warning(f"SKILL.md too short: {len(content)} bytes")
 
         validation_result["content_length"] = len(content)
         self.validation_results["content_validation"] = validation_result
 
     def _scan_hardcoded_dependencies(self, skill_dir: Path) -> None:
         """扫描硬编码依赖"""
-        print("\n[3/6] 扫描硬编码依赖...")
+        logger.info("Scanning hardcoded dependencies")
 
         # 需要扫描的文件类型
         file_extensions = ['.py', '.md', '.txt', '.json', '.yaml', '.yml']
@@ -231,7 +235,7 @@ class SkillValidator:
         for ext in file_extensions:
             all_files.extend(skill_dir.rglob(f"*{ext}"))
 
-        print(f"  扫描 {len(all_files)} 个文件...")
+        logger.debug(f"Scanning {len(all_files)} files")
 
         hardcoded_issues = []
 
@@ -240,21 +244,21 @@ class SkillValidator:
                 content = file_path.read_text(encoding='utf-8')
                 self._scan_file_for_hardcoded(content, file_path, hardcoded_issues)
             except Exception as e:
-                print(f"  ⚠ 无法读取文件: {file_path.name} ({e})")
+                logger.warning("Failed to read file", file=file_path.name, exception=e)
 
         self.validation_results["hardcoded_dependencies"] = hardcoded_issues
 
         if hardcoded_issues:
             self.validation_results["critical_issues"].extend(hardcoded_issues)
-            print(f"  ✗ 发现 {len(hardcoded_issues)} 个硬编码依赖问题")
-            for issue in hardcoded_issues[:5]:  # 只显示前5个
-                print(f"    • {issue['type']}: {issue['pattern']} in {issue['file']}")
-            if len(hardcoded_issues) > 5:
-                print(f"    • ... 还有 {len(hardcoded_issues) - 5} 个问题")
+            logger.warning(
+                f"Found hardcoded dependencies",
+                count=len(hardcoded_issues),
+                issues=[i["type"] for i in hardcoded_issues[:5]],
+            )
         else:
-            print(f"  ✓ 未发现硬编码依赖")
+            logger.info("No hardcoded dependencies found")
 
-    def _scan_file_for_hardcoded(self, content: str, file_path: Path, 
+    def _scan_file_for_hardcoded(self, content: str, file_path: Path,
                                   issues: List[Dict]) -> None:
         """扫描单个文件的硬编码依赖"""
         lines = content.split('\n')
@@ -264,7 +268,7 @@ class SkillValidator:
                 matches = re.finditer(pattern, line, re.IGNORECASE)
                 for match in matches:
                     matched_text = match.group()
-                    
+
                     # 检查是否在允许的域名白名单中
                     if self._is_allowed_domain(matched_text):
                         continue
@@ -279,6 +283,12 @@ class SkillValidator:
                         "suggestion": self._suggest_fix(matched_text)
                     }
                     issues.append(issue)
+                    logger.debug(
+                        "Found hardcoded dependency",
+                        file=issue["file"],
+                        line=line_num,
+                        pattern=matched_text[:50],
+                    )
 
     def _is_allowed_domain(self, matched_text: str) -> bool:
         """检查是否在允许的域名白名单中"""
@@ -294,16 +304,16 @@ class SkillValidator:
         # 高危：本地地址、内网地址
         if any(x in matched_lower for x in ['localhost', '127.0.0.1', '192.168.', '10.', '172.']):
             return "critical"
-        
+
         # 高危：硬编码密钥
         if any(x in matched_lower for x in ['api_key', 'secret', 'token', 'password']):
             if len(matched_text) > 20:  # 看起来像真实的密钥
                 return "critical"
-        
+
         # 中危：固定 IP 地址
         if re.match(r'\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}:\d+', matched_text):
             return "high"
-        
+
         # 低危：其他硬编码
         return "low"
 
@@ -337,20 +347,20 @@ class SkillValidator:
 
     def _detect_security_risks(self, skill_dir: Path) -> None:
         """检测安全风险"""
-        print("\n[4/6] 检测安全风险...")
+        logger.info("Detecting security risks")
 
         security_issues = []
 
         # 扫描 Python 文件
         python_files = list(skill_dir.rglob("*.py"))
-        print(f"  扫描 {len(python_files)} 个 Python 文件...")
+        logger.debug(f"Scanning {len(python_files)} Python files")
 
         for file_path in python_files:
             try:
                 content = file_path.read_text(encoding='utf-8')
                 self._detect_dangerous_code(content, file_path, security_issues)
             except Exception as e:
-                print(f"  ⚠ 无法读取文件: {file_path.name} ({e})")
+                logger.warning("Failed to read file", file=file_path.name, exception=e)
 
         self.validation_results["security_risks"] = security_issues
 
@@ -358,15 +368,15 @@ class SkillValidator:
             self.validation_results["critical_issues"].extend([
                 i for i in security_issues if i.get("severity") == "critical"
             ])
-            print(f"  ✗ 发现 {len(security_issues)} 个安全问题")
-            for issue in security_issues[:5]:
-                print(f"    • {issue['type']}: {issue['pattern']} in {issue['file']}")
-            if len(security_issues) > 5:
-                print(f"    • ... 还有 {len(security_issues) - 5} 个问题")
+            logger.warning(
+                f"Found security risks",
+                count=len(security_issues),
+                issues=[i["type"] for i in security_issues[:5]],
+            )
         else:
-            print(f"  ✓ 未发现安全风险")
+            logger.info("No security risks found")
 
-    def _detect_dangerous_code(self, content: str, file_path: Path, 
+    def _detect_dangerous_code(self, content: str, file_path: Path,
                                 issues: List[Dict]) -> None:
         """检测危险代码"""
         lines = content.split('\n')
@@ -384,10 +394,16 @@ class SkillValidator:
                         "suggestion": "请确保使用环境变量配置或经过严格的输入验证"
                     }
                     issues.append(issue)
+                    logger.debug(
+                        "Found dangerous code",
+                        file=issue["file"],
+                        line=line_num,
+                        pattern=pattern,
+                    )
 
     def _validate_scripts(self, skill_dir: Path) -> None:
         """验证 scripts 目录"""
-        print("\n[5/6] 验证 scripts 目录...")
+        logger.info("Validating scripts directory")
 
         scripts_dir = skill_dir / "scripts"
         if not scripts_dir.exists():
@@ -395,19 +411,19 @@ class SkillValidator:
             return
 
         python_files = list(scripts_dir.glob("*.py"))
-        print(f"  发现 {len(python_files)} 个 Python 脚本")
+        logger.debug(f"Found {len(python_files)} Python scripts")
 
         # 检查每个脚本的基本语法
         syntax_errors = 0
         for py_file in python_files:
             try:
                 compile(py_file.read_text(encoding='utf-8'), str(py_file), 'exec')
-                print(f"  ✓ {py_file.name}")
+                logger.debug(f"Script OK: {py_file.name}")
             except SyntaxError as e:
                 syntax_errors += 1
-                self._add_error("语法错误", 
+                self._add_error("语法错误",
                     f"{py_file.name} 第 {e.lineno} 行: {e.msg}")
-                print(f"  ✗ {py_file.name}: 语法错误")
+                logger.error(f"Syntax error in {py_file.name}", line=e.lineno, message=e.msg)
 
         if syntax_errors > 0:
             self.validation_results["critical_issues"].append({
@@ -417,7 +433,7 @@ class SkillValidator:
 
     def _validate_references(self, skill_dir: Path) -> None:
         """验证 references 目录"""
-        print("\n[6/6] 验证 references 目录...")
+        logger.info("Validating references directory")
 
         refs_dir = skill_dir / "references"
         if not refs_dir.exists():
@@ -425,11 +441,11 @@ class SkillValidator:
             return
 
         ref_files = list(refs_dir.glob("*"))
-        print(f"  发现 {len(ref_files)} 个参考文件")
+        logger.debug(f"Found {len(ref_files)} reference files")
 
         for ref_file in ref_files:
             if ref_file.is_file():
-                print(f"  ✓ {ref_file.name}")
+                logger.debug(f"Reference file: {ref_file.name}")
 
     def _calculate_compliance_score(self) -> None:
         """计算合规分数"""
@@ -461,6 +477,16 @@ class SkillValidator:
         else:
             self.validation_results["overall_status"] = "rejected"
 
+        logger.info(
+            "Compliance score calculated",
+            score=score,
+            status=self.validation_results["overall_status"],
+            passed=passed,
+            total=total,
+            critical=critical_count,
+            warning=warning_count,
+        )
+
     def _add_error(self, error_type: str, message: str) -> None:
         """添加错误"""
         self.validation_results["errors"].append({
@@ -481,7 +507,19 @@ class SkillValidator:
         """完成验证"""
         self.validation_results["validated_at"] = datetime.now().isoformat()
 
-        # 打印总结
+        # 记录验证结果
+        logger.info(
+            "Validation completed",
+            status=self.validation_results["overall_status"],
+            score=self.validation_results["compliance_score"],
+            passed=self.validation_results["passed_checks"],
+            total=self.validation_results["total_checks"],
+            errors=len(self.validation_results["errors"]),
+            warnings=len(self.validation_results["warnings"]),
+            critical=len(self.validation_results["critical_issues"]),
+        )
+
+        # 打印总结（保持向后兼容）
         print(f"\n{'='*80}")
         print(f"验证总结")
         print(f"{'='*80}")
@@ -604,7 +642,7 @@ class SkillValidator:
         if output_file:
             with open(output_file, 'w', encoding='utf-8') as f:
                 f.write(report)
-            print(f"报告已保存到: {output_file}")
+            logger.info(f"Report saved to: {output_file}")
 
         return report
 

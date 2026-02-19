@@ -16,14 +16,19 @@ from datetime import datetime
 from typing import Dict, Optional, List
 import hashlib
 
-# 导入验证器
-from skill_validator import SkillValidator
+# 导入自定义异常、日志和验证器
+from core.exceptions import UploadError, FileOperationError, ValidationError
+from core.logging_config import get_logger
+from scripts.skill_validator import SkillValidator
+
+
+logger = get_logger("arena.uploader")
 
 
 class SkillUploader:
     """Skill 上传管理器"""
 
-    def __init__(self, upload_dir: str = "../data/uploads", 
+    def __init__(self, upload_dir: str = "../data/uploads",
                  skills_dir: str = "../data/skills"):
         """
         初始化上传管理器
@@ -35,7 +40,7 @@ class SkillUploader:
         self.upload_dir = Path(upload_dir)
         self.skills_dir = Path(skills_dir)
         self.validator = SkillValidator()
-        
+
         # 创建必要的目录
         self.upload_dir.mkdir(parents=True, exist_ok=True)
         self.skills_dir.mkdir(parents=True, exist_ok=True)
@@ -52,29 +57,31 @@ class SkillUploader:
 
         Returns:
             上传结果字典
+
+        Raises:
+            UploadError: 上传失败
+            ValidationError: 验证失败
         """
-        print(f"\n{'='*80}")
-        print(f"Skill 上传流程")
-        print(f"{'='*80}")
+        logger.info("Starting skill upload", source_path=source_path)
 
         source = Path(source_path)
 
         # 检查源文件
         if not source.exists():
-            return {
-                "success": False,
-                "error": "源文件不存在",
-                "path": str(source)
-            }
+            raise UploadError(
+                message="源文件不存在",
+                file_name=str(source),
+                reason="file_not_found",
+            )
 
         # 解压或复制到临时目录
         temp_dir = self._prepare_upload(source, skill_name)
         if not temp_dir:
-            return {
-                "success": False,
-                "error": "上传准备失败",
-                "path": str(source)
-            }
+            raise UploadError(
+                message="上传准备失败",
+                file_name=source.name,
+                reason="prepare_failed",
+            )
 
         # 生成 Skill ID
         skill_id = self._generate_skill_id(temp_dir.name)
@@ -83,26 +90,32 @@ class SkillUploader:
         # 自动验证
         validation_result = None
         if auto_validate:
-            print("\n执行自动化验证...")
+            logger.info("Running automated validation")
             validation_result = self.validator.validate_skill(str(temp_dir))
 
             # 检查验证结果
             if validation_result['overall_status'] == 'rejected':
-                print(f"\n❌ Skill 验证未通过，上传被拒绝")
-                print(f"合规分数: {validation_result['compliance_score']}/100")
-                print(f"严重问题: {len(validation_result['critical_issues'])}")
-                
                 # 清理临时目录
                 shutil.rmtree(temp_dir, ignore_errors=True)
-                
-                return {
-                    "success": False,
-                    "error": "验证未通过",
-                    "validation_result": validation_result
-                }
+                logger.warning(
+                    "Skill validation failed, upload rejected",
+                    skill_id=skill_id,
+                    score=validation_result['compliance_score'],
+                    critical=len(validation_result['critical_issues']),
+                )
+
+                raise UploadError(
+                    message="Skill 验证未通过，上传被拒绝",
+                    file_name=source.name,
+                    reason="validation_failed",
+                    details={
+                        "compliance_score": validation_result['compliance_score'],
+                        "critical_issues": len(validation_result['critical_issues']),
+                    },
+                )
 
         # 移动到目标目录
-        print(f"\n移动 Skill 到: {skill_dir}")
+        logger.info("Moving skill to destination", skill_dir=str(skill_dir))
         shutil.move(str(temp_dir), str(skill_dir))
 
         # 生成 Skill 元数据
@@ -126,11 +139,12 @@ class SkillUploader:
         upload_record_file = self.upload_dir / f"upload-{skill_id}.json"
         upload_record_file.write_text(json.dumps(upload_report, indent=2, ensure_ascii=False))
 
-        print(f"\n✅ Skill 上传成功！")
-        print(f"   Skill ID: {skill_id}")
-        print(f"   Skill 名称: {metadata['skill_name']}")
-        print(f"   合规分数: {validation_result.get('compliance_score', 'N/A')}/100" if validation_result else "")
-        print(f"   状态: {validation_result['overall_status'].upper()}" if validation_result else "")
+        logger.info(
+            "Skill uploaded successfully",
+            skill_id=skill_id,
+            skill_name=metadata['skill_name'],
+            score=validation_result.get('compliance_score') if validation_result else None,
+        )
 
         return upload_report
 
@@ -144,8 +158,11 @@ class SkillUploader:
 
         Returns:
             临时目录路径
+
+        Raises:
+            UploadError: 准备失败
         """
-        print(f"\n准备上传: {source.name}")
+        logger.info("Preparing upload", file_name=source.name)
 
         # 创建临时目录
         temp_dir = self.upload_dir / f"temp_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
@@ -153,11 +170,11 @@ class SkillUploader:
 
         if source.is_file() and source.suffix == '.zip':
             # 处理 zip 文件
-            print(f"  解压 ZIP 文件...")
+            logger.info("Extracting ZIP file")
             try:
                 with zipfile.ZipFile(source, 'r') as zip_ref:
                     zip_ref.extractall(temp_dir)
-                
+
                 # 检查解压后的内容
                 extracted_items = list(temp_dir.iterdir())
                 if len(extracted_items) == 1 and extracted_items[0].is_dir():
@@ -166,41 +183,50 @@ class SkillUploader:
                     for item in inner_dir.iterdir():
                         shutil.move(str(item), str(temp_dir / item.name))
                     shutil.rmtree(inner_dir)
-                
-                print(f"  ✓ 解压完成")
+
+                logger.info("ZIP extraction completed")
                 return temp_dir
-                
+
             except Exception as e:
-                print(f"  ✗ 解压失败: {e}")
                 shutil.rmtree(temp_dir, ignore_errors=True)
-                return None
-                
+                raise UploadError(
+                    message="解压 ZIP 文件失败",
+                    file_name=source.name,
+                    reason="zip_extraction_failed",
+                ) from e
+
         elif source.is_dir():
             # 处理目录
-            print(f"  复制目录...")
+            logger.info("Copying directory")
             try:
                 # 如果有自定义名称，使用自定义名称
                 target_dir = temp_dir / (skill_name if skill_name else source.name)
                 shutil.copytree(source, target_dir)
-                
+
                 # 如果创建的是子目录，将内容移到 temp_dir
                 if target_dir != temp_dir:
                     for item in target_dir.iterdir():
                         shutil.move(str(item), str(temp_dir / item.name))
                     shutil.rmtree(target_dir)
-                
-                print(f"  ✓ 复制完成")
+
+                logger.info("Directory copy completed")
                 return temp_dir
-                
+
             except Exception as e:
-                print(f"  ✗ 复制失败: {e}")
                 shutil.rmtree(temp_dir, ignore_errors=True)
-                return None
-                
+                raise UploadError(
+                    message="复制目录失败",
+                    file_name=source.name,
+                    reason="directory_copy_failed",
+                ) from e
+
         else:
-            print(f"  ✗ 不支持的文件类型")
             shutil.rmtree(temp_dir, ignore_errors=True)
-            return None
+            raise UploadError(
+                message="不支持的文件类型",
+                file_name=source.name,
+                reason="unsupported_file_type",
+            )
 
     def _generate_skill_id(self, skill_name: str) -> str:
         """生成唯一的 Skill ID"""
@@ -222,20 +248,20 @@ class SkillUploader:
         if skill_md.exists():
             try:
                 content = skill_md.read_text(encoding='utf-8')
-                
+
                 # 提取名称
                 import re
                 name_match = re.search(r'name:\s*["\']?([^"\'\n]+)["\']?', content)
                 if name_match:
                     skill_name = name_match.group(1).strip()
-                
+
                 # 提取描述
                 desc_match = re.search(r'description:\s*["\']([^"\']+)', content)
                 if desc_match:
                     description = desc_match.group(1).strip()
-                    
+
             except Exception as e:
-                print(f"  ⚠ 无法读取 SKILL.md: {e}")
+                logger.warning("Failed to read SKILL.md", exception=e)
 
         # 计算文件统计
         file_stats = self._calculate_file_stats(skill_dir)
@@ -267,7 +293,7 @@ class SkillUploader:
             if item.is_file():
                 stats["total_files"] += 1
                 stats["total_size_bytes"] += item.stat().st_size
-                
+
                 # 统计文件类型
                 ext = item.suffix.lower()
                 if ext:
@@ -280,7 +306,7 @@ class SkillUploader:
     def list_uploaded_skills(self) -> List[Dict]:
         """列出已上传的 Skills"""
         skills = []
-        
+
         # 遍历 skills 目录
         for skill_id_dir in self.skills_dir.iterdir():
             if skill_id_dir.is_dir():
@@ -290,8 +316,8 @@ class SkillUploader:
                         metadata = json.loads(metadata_file.read_text(encoding='utf-8'))
                         skills.append(metadata)
                     except Exception as e:
-                        print(f"  ⚠ 无法读取元数据: {metadata_file.name}")
-        
+                        logger.warning("Failed to read metadata", file=metadata_file.name, exception=e)
+
         return skills
 
     def get_upload_status(self, skill_id: str) -> Optional[Dict]:
@@ -309,7 +335,7 @@ def main():
     parser = argparse.ArgumentParser(description="Skill 上传管理器")
     parser.add_argument("source", help="Skill 源路径（文件夹或 zip 文件）")
     parser.add_argument("--name", help="自定义 Skill 名称")
-    parser.add_argument("--no-validate", action="store_true", 
+    parser.add_argument("--no-validate", action="store_true",
                         help="跳过自动验证（不推荐）")
     parser.add_argument("--list", action="store_true", help="列出已上传的 Skills")
     parser.add_argument("--status", help="查询指定 Skill 的上传状态")
@@ -340,18 +366,21 @@ def main():
             return
 
     # 上传 Skill
-    result = uploader.upload_skill(
-        args.source,
-        skill_name=args.name,
-        auto_validate=not args.no_validate
-    )
+    try:
+        result = uploader.upload_skill(
+            args.source,
+            skill_name=args.name,
+            auto_validate=not args.no_validate
+        )
 
-    if result["success"]:
-        print(f"\n✅ 上传成功!")
-        print(f"Skill ID: {result['skill_id']}")
-        sys.exit(0)
-    else:
-        print(f"\n❌ 上传失败: {result.get('error', 'Unknown error')}")
+        if result["success"]:
+            print(f"\n✅ 上传成功!")
+            print(f"Skill ID: {result['skill_id']}")
+            sys.exit(0)
+    except UploadError as e:
+        print(f"\n❌ 上传失败: {e.message}")
+        if e.details:
+            print(f"详情: {e.details}")
         sys.exit(1)
 
 
